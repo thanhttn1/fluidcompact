@@ -1,0 +1,101 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="thanhtnt2"
+description='''
+UNOFFICIAL intermediary mod for Flowing Fluids (by Traben). Not affiliated with or endorsed by its author.
+
+Flowing Fluids makes fluids finite. FluidCompact teaches it about the water pumps of other mods
+(Modern Industrialization, Mekanism, Mekanism Elements) by calling Flowing Fluids' public API.
+It contains no code or assets from Flowing Fluids, which is a separate, required mod.
+Also lets fluid flow through pipes via Fluidlogged, and exposes an API so other mods' pumps can join in.
+'''
+credits='''Flowing Fluids by Traben (GNU LGPL 3.0), required and not bundled. See CREDITS.md for every mod FluidCompact works with.'''
+
+# Needed so the Modern Industrialization pump hook is picked up by Mixin
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+# Compat modules: one mixin config per mod so each hook is guarded and removable on its own
+[[mixins]]
+config="${mod_id}.compat.mekanism.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.mekanismelements.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Flowing Fluids is mandatory: without it the game stops at the mod list screen and asks for it
+[[dependencies.${mod_id}]]
+    modId="flowing_fluids"
+    type="required"
+    versionRange="[1.0.6,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Everything below is optional: FluidCompact must boot without any of it
+[[dependencies.${mod_id}]]
+    modId="modern_industrialization"
+    type="optional"
+    versionRange="[2.5,3)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jade"
+    type="optional"
+    versionRange="[15,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[19,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="mekanism"
+    type="optional"
+    versionRange="[10.7,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="mekanismelements"
+    type="optional"
+    versionRange="[3,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="fluidlogged"
+    type="optional"
+    versionRange="[2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="yet_another_config_lib_v3"
+    type="optional"
+    versionRange="[3.5,)"
+    ordering="NONE"
+    side="CLIENT"

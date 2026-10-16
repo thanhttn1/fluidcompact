@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "mekanism:electric_pump", "required": false },
+    { "id": "mekanismelements:seawater_pump", "required": false }
+  ]
+}

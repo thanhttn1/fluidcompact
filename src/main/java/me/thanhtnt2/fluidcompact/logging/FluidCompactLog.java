@@ -1,0 +1,191 @@
+package me.thanhtnt2.fluidcompact.logging;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import me.thanhtnt2.fluidcompact.FluidCompact;
+import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
+import net.neoforged.fml.loading.FMLPaths;
+
+/**
+ * Dedicated log file ({@code <game folder>/logs/fluidcompact.log}) so developers and players can
+ * share FluidCompact's own trail without digging through latest.log.
+ *
+ * <p>Writing is synchronous on purpose: volume is tiny (verbose lines are throttled) and an
+ * asynchronous writer could lose the last lines of a crash. Warnings and errors are mirrored to
+ * the normal game log as well. This class never throws.
+ */
+public final class FluidCompactLog {
+
+    private static final String LOG_FILE_NAME = "fluidcompact.log";
+    private static final String PREVIOUS_LOG_FILE_NAME = "fluidcompact-previous.log";
+    private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT);
+
+    private static final Object LOCK = new Object();
+    private static final Map<String, Long> LAST_VERBOSE_MILLIS = new ConcurrentHashMap<>();
+
+    private static BufferedWriter writer;
+    private static Path logFile;
+    private static boolean initialized;
+
+    private FluidCompactLog() {
+    }
+
+    /** Opens the log file once. Safe to call early: it does not read any config. */
+    public static void initialize() {
+        synchronized (LOCK) {
+            if (initialized) {
+                return;
+            }
+            initialized = true;
+            try {
+                Path logsFolder = FMLPaths.GAMEDIR.get().resolve("logs");
+                Files.createDirectories(logsFolder);
+                Path current = logsFolder.resolve(LOG_FILE_NAME);
+                keepPreviousRun(current, logsFolder.resolve(PREVIOUS_LOG_FILE_NAME));
+                writer = Files.newBufferedWriter(current, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+                logFile = current;
+            } catch (IOException | RuntimeException exception) {
+                FluidCompact.LOGGER.warn("FluidCompact could not open its own log file, using latest.log only", exception);
+            }
+        }
+        info("FluidCompact log started. Java {} on {}", System.getProperty("java.version"), System.getProperty("os.name"));
+    }
+
+    public static Path logFilePath() {
+        synchronized (LOCK) {
+            return logFile;
+        }
+    }
+
+    public static void info(String pattern, Object... arguments) {
+        write("INFO", format(pattern, arguments), null);
+    }
+
+    public static void warn(String pattern, Object... arguments) {
+        String message = format(pattern, arguments);
+        FluidCompact.LOGGER.warn("[FluidCompact] {}", message);
+        write("WARN", message, null);
+    }
+
+    public static void error(String message, Throwable error) {
+        FluidCompact.LOGGER.error("[FluidCompact] {}", message, error);
+        write("ERROR", message, error);
+    }
+
+    /** Only written when {@code logging.verbose} is on. */
+    public static void debug(String pattern, Object... arguments) {
+        if (isVerbose()) {
+            write("DEBUG", format(pattern, arguments), null);
+        }
+    }
+
+    /** Like {@link #debug} but at most once per throttle window for the same key (for example a machine position). */
+    public static void debugThrottled(String key, String pattern, Object... arguments) {
+        if (!isVerbose()) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long last = LAST_VERBOSE_MILLIS.getOrDefault(key, 0L);
+        if (now - last < throttleMillis()) {
+            return;
+        }
+        LAST_VERBOSE_MILLIS.put(key, now);
+        write("DEBUG", format(pattern, arguments), null);
+    }
+
+    private static void keepPreviousRun(Path current, Path previous) {
+        if (!Files.exists(current)) {
+            return;
+        }
+        try {
+            Files.move(current, previous, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException exception) {
+            // Not fatal: the new run simply overwrites the old file
+            FluidCompact.LOGGER.debug("Could not keep previous FluidCompact log", exception);
+        }
+    }
+
+    private static void write(String level, String message, Throwable error) {
+        if (!isFileEnabled()) {
+            return;
+        }
+        synchronized (LOCK) {
+            if (writer == null) {
+                return;
+            }
+            try {
+                writer.write("[" + LocalDateTime.now().format(TIMESTAMP) + "] [" + Thread.currentThread().getName()
+                        + "/" + level + "] " + message);
+                writer.newLine();
+                if (error != null) {
+                    writer.write(stackTraceOf(error));
+                }
+                writer.flush();
+            } catch (IOException exception) {
+                // Stop trying after the first failure so a full disk cannot spam the game log
+                writer = null;
+                FluidCompact.LOGGER.warn("FluidCompact log file became unwritable, file logging stopped", exception);
+            }
+        }
+    }
+
+    private static String stackTraceOf(Throwable error) {
+        StringWriter buffer = new StringWriter();
+        error.printStackTrace(new PrintWriter(buffer));
+        return buffer.toString();
+    }
+
+    private static String format(String pattern, Object... arguments) {
+        StringBuilder result = new StringBuilder(pattern.length() + 16 * arguments.length);
+        int argumentIndex = 0;
+        int cursor = 0;
+        while (cursor < pattern.length()) {
+            int placeholder = pattern.indexOf("{}", cursor);
+            if (placeholder < 0 || argumentIndex >= arguments.length) {
+                break;
+            }
+            result.append(pattern, cursor, placeholder).append(arguments[argumentIndex++]);
+            cursor = placeholder + 2;
+        }
+        return result.append(pattern, cursor, pattern.length()).toString();
+    }
+
+    // The config may not be loaded yet during early startup, so fall back to sensible defaults
+    private static boolean isFileEnabled() {
+        try {
+            return FluidCompactCompatConfig.LOG_FILE_ENABLED.get();
+        } catch (IllegalStateException notLoadedYet) {
+            return true;
+        }
+    }
+
+    private static boolean isVerbose() {
+        try {
+            return FluidCompactCompatConfig.LOG_VERBOSE.get();
+        } catch (IllegalStateException notLoadedYet) {
+            return false;
+        }
+    }
+
+    private static long throttleMillis() {
+        try {
+            return FluidCompactCompatConfig.LOG_VERBOSE_THROTTLE_MS.get();
+        } catch (IllegalStateException notLoadedYet) {
+            return 1000L;
+        }
+    }
+}
