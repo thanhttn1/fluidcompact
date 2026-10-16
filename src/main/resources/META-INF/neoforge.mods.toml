@@ -8,12 +8,7 @@ version="${mod_version}"
 displayName="${mod_name}"
 authors="thanhtnt2"
 description='''
-UNOFFICIAL intermediary mod for Flowing Fluids (by Traben). Not affiliated with or endorsed by its author.
-
-Flowing Fluids makes fluids finite. FluidCompact teaches it about the water pumps of other mods
-(Modern Industrialization, Mekanism, Mekanism Elements) by calling Flowing Fluids' public API.
-It contains no code or assets from Flowing Fluids, which is a separate, required mod.
-Also lets fluid flow through pipes via Fluidlogged, and exposes an API so other mods' pumps can join in.
+An unofficial intermediary compatibility mod that helps Flowing Fluids understand other mods better.
 '''
 credits='''Flowing Fluids by Traben (GNU LGPL 3.0), required and not bundled. See CREDITS.md for every mod FluidCompact works with.'''
 

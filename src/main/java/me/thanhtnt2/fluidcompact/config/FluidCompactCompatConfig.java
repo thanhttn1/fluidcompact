@@ -27,6 +27,7 @@ public final class FluidCompactCompatConfig {
 
     public static final ModConfigSpec.BooleanValue LOG_FILE_ENABLED;
     public static final ModConfigSpec.BooleanValue LOG_VERBOSE;
+    public static final ModConfigSpec.BooleanValue LOG_DEBUG_MODE;
     public static final ModConfigSpec.IntValue LOG_VERBOSE_THROTTLE_MS;
 
     public static final ModConfigSpec.BooleanValue ELECTRIC_PUMP_ENABLED;
@@ -46,6 +47,10 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> FLUIDLOGGED_BLOCK_CLASSES;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> FLUIDLOGGED_EXTRA_BLOCKS;
 
+    public static final ModConfigSpec.BooleanValue FF_PIPES_ENABLED;
+    public static final ModConfigSpec.BooleanValue FF_PIPES_NON_DISPLACERS;
+    public static final ModConfigSpec.EnumValue<WaterlogFlowOverride> FF_PIPES_WATERLOG_MODE;
+
     public static final ModConfigSpec SPEC;
 
     static {
@@ -62,6 +67,11 @@ public final class FluidCompactCompatConfig {
         LOG_VERBOSE = BUILDER
                 .comment("Also log every fluid intake. Useful for bug reports, noisy otherwise.")
                 .define("verbose", false);
+        LOG_DEBUG_MODE = BUILDER
+                .comment("DEBUG MODE: log EVERYTHING into logs/fluidcompact.log: full config dump, every loaded mod,",
+                        "every fluid intake (no throttling) and every block update of pipes. Files can get very large.",
+                        "Pipe update tracing only starts after a game restart.")
+                .define("debugMode", false);
         LOG_VERBOSE_THROTTLE_MS = BUILDER
                 .comment("Minimum milliseconds between two verbose lines about the same machine.")
                 .defineInRange("verboseThrottleMillis", 1000, 0, 600000);
@@ -119,6 +129,21 @@ public final class FluidCompactCompatConfig {
                         "Datapacks can also add blocks to the tag fluidcompact:fluid_passable_blocks.")
                 .defineListAllowEmpty("extraBlocks", List.of(), () -> "",
                         FluidCompactCompatConfig::isNonBlankString);
+        BUILDER.pop();
+
+        BUILDER.push("flowing_fluids_pipes");
+        FF_PIPES_ENABLED = BUILDER
+                .comment("Teach Flowing Fluids that pipes are special blocks. Uses the same pipe list as fluidlogged_pipes.")
+                .define("enabled", true);
+        FF_PIPES_NON_DISPLACERS = BUILDER
+                .comment("Register pipes through the Flowing Fluids API as blocks that never push fluid out of their cell.")
+                .define("registerAsNonDisplacers", true);
+        FF_PIPES_WATERLOG_MODE = BUILDER
+                .comment("Flowing Fluids drains waterlogged blocks (pipes) by default, which makes submerged pipes flicker.",
+                        "IGNORE keeps a submerged pipe submerged. This is a GLOBAL Flowing Fluids setting: it also affects",
+                        "other waterlogged blocks such as slabs. KEEP_FLOWING_FLUIDS_SETTING leaves it untouched.",
+                        "Applied in memory when a world starts; nothing is written to Flowing Fluids' own config file.")
+                .defineEnum("waterlogFlowMode", WaterlogFlowOverride.IGNORE);
         BUILDER.pop();
 
         SPEC = BUILDER.build();

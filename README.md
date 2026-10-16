@@ -1,6 +1,7 @@
-# FluidCompact - Unofficial Flowing Fluids Bridge
+# FluidCompact
 
-> **Unofficial intermediary mod for [Flowing Fluids](https://github.com/Traben-0/flowing_fluids) by Traben.**
+> **An unofficial intermediary compatibility mod that helps Flowing Fluids understand other mods better.**
+> Built for [Flowing Fluids](https://github.com/Traben-0/flowing_fluids) by Traben.
 > Not affiliated with or endorsed by its author. It contains no Flowing Fluids code: it only calls its public API.
 > **Flowing Fluids is a required dependency** and is not bundled. See [CREDITS.md](CREDITS.md).
 

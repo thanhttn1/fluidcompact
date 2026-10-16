@@ -7,10 +7,12 @@ import me.thanhtnt2.fluidcompact.api.compat.CompatModuleRegistry;
 import me.thanhtnt2.fluidcompact.api.compat.CompatStatus;
 import me.thanhtnt2.fluidcompact.api.event.FluidIntakeEvent;
 import me.thanhtnt2.fluidcompact.compat.fluidlogged.FluidloggedCompatModule;
+import me.thanhtnt2.fluidcompact.compat.flowingfluids.FlowingFluidsPipesCompatModule;
 import me.thanhtnt2.fluidcompact.compat.info.InfoCompatModule;
 import me.thanhtnt2.fluidcompact.compat.mekanism.MekanismCompatModule;
 import me.thanhtnt2.fluidcompact.compat.mekanismelements.MekanismElementsCompatModule;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
+import me.thanhtnt2.fluidcompact.logging.DebugSnapshot;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import me.thanhtnt2.fluidcompact.logging.IntakeAuditLogger;
 import net.neoforged.fml.ModList;
@@ -41,6 +43,7 @@ public final class CompatBootstrap {
         CompatModuleRegistry.register(new MekanismCompatModule());
         CompatModuleRegistry.register(new MekanismElementsCompatModule());
         CompatModuleRegistry.register(new FluidloggedCompatModule());
+        CompatModuleRegistry.register(new FlowingFluidsPipesCompatModule());
     }
 
     public static void onCommonSetup(FMLCommonSetupEvent event) {
@@ -50,6 +53,9 @@ public final class CompatBootstrap {
 
     private static void initialize() {
         reportEnvironment();
+        if (FluidCompactLog.isDebugMode()) {
+            DebugSnapshot.logAll();
+        }
         for (CompatModule module : CompatModuleRegistry.snapshot()) {
             activate(module);
         }

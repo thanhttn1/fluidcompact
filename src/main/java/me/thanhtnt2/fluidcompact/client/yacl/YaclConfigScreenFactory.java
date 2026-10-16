@@ -21,6 +21,7 @@ import me.thanhtnt2.fluidcompact.config.BackendPreference;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.config.FluidCompactConfig;
 import me.thanhtnt2.fluidcompact.config.ShortfallBehavior;
+import me.thanhtnt2.fluidcompact.config.WaterlogFlowOverride;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -79,7 +80,8 @@ public final class YaclConfigScreenFactory {
                 .group(buildModernIndustrializationGroup())
                 .group(buildMekanismGroup())
                 .group(buildMekanismElementsGroup())
-                .group(buildFluidloggedGroup());
+                .group(buildFluidloggedGroup())
+                .group(buildFlowingFluidsPipesGroup());
         category.group(textList("fluidloggedBlockClasses", FluidCompactCompatConfig.FLUIDLOGGED_BLOCK_CLASSES, isLoaded("fluidlogged")));
         category.group(textList("fluidloggedExtraBlocks", FluidCompactCompatConfig.FLUIDLOGGED_EXTRA_BLOCKS, isLoaded("fluidlogged")));
         return category.build();
@@ -89,6 +91,7 @@ public final class YaclConfigScreenFactory {
         OptionGroup.Builder group = OptionGroup.createBuilder()
                 .name(Component.translatable("fluidcompact.group.logging"))
                 .option(toggle("logFileEnabled", FluidCompactCompatConfig.LOG_FILE_ENABLED, true))
+                .option(toggle("logDebug", FluidCompactCompatConfig.LOG_DEBUG_MODE, true))
                 .option(toggle("logVerbose", FluidCompactCompatConfig.LOG_VERBOSE, true))
                 .option(slider("logThrottle", FluidCompactCompatConfig.LOG_VERBOSE_THROTTLE_MS, 0, 10000, 100, true));
         if (FluidCompactLog.logFilePath() != null) {
@@ -162,6 +165,17 @@ public final class YaclConfigScreenFactory {
                 .option(toggle("fluidloggedFluidloggable", FluidCompactCompatConfig.FLUIDLOGGED_FLUIDLOGGABLE, installed))
                 .option(toggle("fluidloggedPermeable", FluidCompactCompatConfig.FLUIDLOGGED_PERMEABLE, installed))
                 .option(toggle("fluidloggedShapeIndependent", FluidCompactCompatConfig.FLUIDLOGGED_SHAPE_INDEPENDENT, installed))
+                .build();
+    }
+
+    private static OptionGroup buildFlowingFluidsPipesGroup() {
+        boolean installed = isLoaded("flowing_fluids");
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.flowing_fluids_pipes"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.flowing_fluids_pipes.desc")))
+                .option(toggle("ffPipesEnabled", FluidCompactCompatConfig.FF_PIPES_ENABLED, installed))
+                .option(toggle("ffPipesNonDisplacers", FluidCompactCompatConfig.FF_PIPES_NON_DISPLACERS, installed))
+                .option(choice("ffPipesWaterlogMode", FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE, WaterlogFlowOverride.class, installed))
                 .build();
     }
 

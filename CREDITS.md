@@ -19,7 +19,7 @@ What FluidCompact does with it, stated plainly:
 * The goal is the opposite of copying: FluidCompact teaches Flowing Fluids' world about other mods' water pumps
   (Modern Industrialization, Mekanism, ...) so those machines drain the world instead of creating fluid.
 * All the fluid physics people enjoy are Traben's work. Please support the original mod and report
-  any issues regarding the FluidCompact mod to me (via my GitHub page); please do not flood the author page.
+  FluidCompact issues to me (Via Github or Discord), do not flood author page.
 
 ## Other mods FluidCompact works with
 
@@ -37,7 +37,7 @@ Licenses below are as declared in the mods' own metadata (versions we tested aga
 | YetAnotherConfigLib 3.8.x | isXander | LGPL-3.0-or-later |
 
 Also checked for compatibility (no changes needed): Modern Dynamics (Technici4n, LGPLv3), XNet (McJty, MIT),
-Refined Storage (Refined Mods, MIT), Tesseract API (Swedz, MIT), Mekanism Generators (MIT), Mekanism:More Machine (MIT).
+Refined Storage (Refined Mods, MIT), Tesseract API (Swedz, MIT), Mekanism Generators (MIT), mekmm (MIT).
 
 ## FluidCompact
 

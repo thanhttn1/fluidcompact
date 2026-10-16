@@ -94,5 +94,15 @@
   "fluidcompact.option.logThrottle": "Verbose Throttle (ms)",
   "fluidcompact.option.logThrottle.desc": "Minimum milliseconds between two verbose lines about the same machine.",
   "jei.fluidcompact.compat_finite_pump": "With FluidCompact this pump no longer creates fluid from nothing. Everything it pumps is removed from the source blocks it takes from, so a small pond can run dry.",
-  "fluidcompact.notice.unofficial": "Unofficial intermediary for Flowing Fluids by Traben (LGPL). Flowing Fluids is required. Not affiliated with its author."
+  "fluidcompact.notice.unofficial": "An unofficial intermediary compatibility mod that helps Flowing Fluids (by Traben, LGPL) understand other mods better. Flowing Fluids is required.",
+  "fluidcompact.group.flowing_fluids_pipes": "Flowing Fluids (submerged pipes)",
+  "fluidcompact.group.flowing_fluids_pipes.desc": "Teaches Flowing Fluids that pipes stay submerged instead of being drained and flickering. Uses the same pipe list as Fluidlogged.",
+  "fluidcompact.option.ffPipesEnabled": "Enabled",
+  "fluidcompact.option.ffPipesEnabled.desc": "Turn the whole pipe handling for Flowing Fluids on or off.",
+  "fluidcompact.option.ffPipesNonDisplacers": "Pipes Never Push Fluid Out",
+  "fluidcompact.option.ffPipesNonDisplacers.desc": "Registers pipes in Flowing Fluids as blocks that do not displace fluid, through its public API.",
+  "fluidcompact.option.ffPipesWaterlogMode": "Waterlogged Block Flow Mode",
+  "fluidcompact.option.ffPipesWaterlogMode.desc": "IGNORE keeps submerged pipes submerged, but it is a global Flowing Fluids setting that also affects other waterlogged blocks. KEEP_FLOWING_FLUIDS_SETTING changes nothing. Applied in memory when a world starts.",
+  "fluidcompact.option.logDebug": "DEBUG MODE (log everything)",
+  "fluidcompact.option.logDebug.desc": "Logs a full config dump, every loaded mod, every fluid intake without throttling and every pipe block update. Files get big, use it only for bug reports. Pipe tracing needs a restart."
 }

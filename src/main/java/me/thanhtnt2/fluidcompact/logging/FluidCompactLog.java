@@ -86,15 +86,27 @@ public final class FluidCompactLog {
         write("ERROR", message, error);
     }
 
-    /** Only written when {@code logging.verbose} is on. */
+    /** Only written when {@code logging.verbose} or {@code logging.debugMode} is on. */
     public static void debug(String pattern, Object... arguments) {
-        if (isVerbose()) {
+        if (isVerbose() || isDebugMode()) {
             write("DEBUG", format(pattern, arguments), null);
+        }
+    }
+
+    /** Only written in debug mode, for very chatty details such as every pipe block update. Never throttled. */
+    public static void trace(String pattern, Object... arguments) {
+        if (isDebugMode()) {
+            write("TRACE", format(pattern, arguments), null);
         }
     }
 
     /** Like {@link #debug} but at most once per throttle window for the same key (for example a machine position). */
     public static void debugThrottled(String key, String pattern, Object... arguments) {
+        if (isDebugMode()) {
+            // Debug mode means "log everything", so the throttle is skipped
+            write("DEBUG", format(pattern, arguments), null);
+            return;
+        }
         if (!isVerbose()) {
             return;
         }
@@ -170,6 +182,14 @@ public final class FluidCompactLog {
             return FluidCompactCompatConfig.LOG_FILE_ENABLED.get();
         } catch (IllegalStateException notLoadedYet) {
             return true;
+        }
+    }
+
+    public static boolean isDebugMode() {
+        try {
+            return FluidCompactCompatConfig.LOG_DEBUG_MODE.get();
+        } catch (IllegalStateException notLoadedYet) {
+            return false;
         }
     }
 
