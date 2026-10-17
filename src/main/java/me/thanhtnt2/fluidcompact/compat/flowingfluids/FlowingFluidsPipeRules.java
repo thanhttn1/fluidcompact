@@ -52,8 +52,21 @@ final class FlowingFluidsPipeRules {
         }
     }
 
+    // Modes that let pipes join the fluid simulation duplicated water in testing, so they need an explicit opt-in
+    private static WaterlogFlowOverride safeRequestedMode() {
+        WaterlogFlowOverride configured = FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE.get();
+        boolean safe = configured == WaterlogFlowOverride.IGNORE
+                || configured == WaterlogFlowOverride.KEEP_FLOWING_FLUIDS_SETTING;
+        if (safe || FluidCompactCompatConfig.FF_PIPES_ALLOW_EXPERIMENTAL_MODES.get()) {
+            return configured;
+        }
+        FluidCompactLog.warn("[flowing_fluids_pipes] waterlogFlowMode={} is experimental and can duplicate water; using IGNORE instead. "
+                + "Set allowExperimentalWaterlogModes=true to force it.", configured);
+        return WaterlogFlowOverride.IGNORE;
+    }
+
     private static void applyWaterlogFlowMode() {
-        WaterlogFlowOverride requested = FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE.get();
+        WaterlogFlowOverride requested = safeRequestedMode();
         FFConfig flowingFluidsConfig = FlowingFluidsAPI.getInstance(FluidCompactApi.MOD_ID).getConfig();
         FFConfig.WaterLogFlowMode current = flowingFluidsConfig.waterLogFlowMode;
         if (requested == WaterlogFlowOverride.KEEP_FLOWING_FLUIDS_SETTING) {

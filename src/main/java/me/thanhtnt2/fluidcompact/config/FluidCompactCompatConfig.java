@@ -50,6 +50,10 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.BooleanValue FF_PIPES_ENABLED;
     public static final ModConfigSpec.BooleanValue FF_PIPES_NON_DISPLACERS;
     public static final ModConfigSpec.EnumValue<WaterlogFlowOverride> FF_PIPES_WATERLOG_MODE;
+    public static final ModConfigSpec.BooleanValue FF_PIPES_ALLOW_EXPERIMENTAL_MODES;
+    public static final ModConfigSpec.BooleanValue FF_PIPES_CLEAN_ORPHAN_WATER;
+    public static final ModConfigSpec.IntValue FF_PIPES_CLEANUP_INTERVAL_TICKS;
+    public static final ModConfigSpec.IntValue FF_PIPES_CLEANUP_CHUNK_RADIUS;
 
     public static final ModConfigSpec SPEC;
 
@@ -139,11 +143,26 @@ public final class FluidCompactCompatConfig {
                 .comment("Register pipes through the Flowing Fluids API as blocks that never push fluid out of their cell.")
                 .define("registerAsNonDisplacers", true);
         FF_PIPES_WATERLOG_MODE = BUILDER
-                .comment("Flowing Fluids drains waterlogged blocks (pipes) by default, which makes submerged pipes flicker.",
-                        "IGNORE keeps a submerged pipe submerged. This is a GLOBAL Flowing Fluids setting: it also affects",
-                        "other waterlogged blocks such as slabs. KEEP_FLOWING_FLUIDS_SETTING leaves it untouched.",
-                        "Applied in memory when a world starts; nothing is written to Flowing Fluids' own config file.")
+                .comment("How Flowing Fluids treats waterlogged blocks (pipes). GLOBAL setting: it also affects slabs, stairs, etc.",
+                        "Applied in memory when a world starts; nothing is written to Flowing Fluids' own config file.",
+                        "  IGNORE (default, safe): pipes neither take nor give water through Flowing Fluids, so they cannot duplicate it.",
+                        "  KEEP_FLOWING_FLUIDS_SETTING: change nothing (Flowing Fluids' own default).",
+                        "  Any other value is EXPERIMENTAL: pipes then take part in the fluid simulation and water duplication was",
+                        "  observed with it. It is ignored (IGNORE is used) unless allowExperimentalWaterlogModes is true.")
                 .defineEnum("waterlogFlowMode", WaterlogFlowOverride.IGNORE);
+        FF_PIPES_ALLOW_EXPERIMENTAL_MODES = BUILDER
+                .comment("DANGEROUS: lets waterlogFlowMode use modes other than IGNORE / KEEP. Can duplicate water. Only for testing.")
+                .define("allowExperimentalWaterlogModes", false);
+        FF_PIPES_CLEAN_ORPHAN_WATER = BUILDER
+                .comment("Remove the water left inside a waterlogged pipe once none of its non-pipe neighbours holds water.",
+                        "Stops water cubes from hanging in the air around pipes and removes stuck water instead of copying it.")
+                .define("cleanOrphanPipeWater", true);
+        FF_PIPES_CLEANUP_INTERVAL_TICKS = BUILDER
+                .comment("Ticks between two cleanup passes. Higher = less work, slower cleanup.")
+                .defineInRange("cleanupIntervalTicks", 40, 5, 1200);
+        FF_PIPES_CLEANUP_CHUNK_RADIUS = BUILDER
+                .comment("Only pipes in loaded chunks within this many chunks of a player are cleaned. Lower = less work.")
+                .defineInRange("cleanupChunkRadius", 4, 1, 16);
         BUILDER.pop();
 
         SPEC = BUILDER.build();

@@ -176,6 +176,10 @@ public final class YaclConfigScreenFactory {
                 .option(toggle("ffPipesEnabled", FluidCompactCompatConfig.FF_PIPES_ENABLED, installed))
                 .option(toggle("ffPipesNonDisplacers", FluidCompactCompatConfig.FF_PIPES_NON_DISPLACERS, installed))
                 .option(choice("ffPipesWaterlogMode", FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE, WaterlogFlowOverride.class, installed))
+                .option(toggle("ffPipesAllowExperimental", FluidCompactCompatConfig.FF_PIPES_ALLOW_EXPERIMENTAL_MODES, installed))
+                .option(toggle("ffPipesCleanOrphan", FluidCompactCompatConfig.FF_PIPES_CLEAN_ORPHAN_WATER, installed))
+                .option(slider("ffPipesCleanupInterval", FluidCompactCompatConfig.FF_PIPES_CLEANUP_INTERVAL_TICKS, 5, 1200, 5, installed))
+                .option(slider("ffPipesCleanupRadius", FluidCompactCompatConfig.FF_PIPES_CLEANUP_CHUNK_RADIUS, 1, 16, 1, installed))
                 .build();
     }
 

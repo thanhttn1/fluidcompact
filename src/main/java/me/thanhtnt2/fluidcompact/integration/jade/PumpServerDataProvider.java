@@ -3,7 +3,7 @@ package me.thanhtnt2.fluidcompact.integration.jade;
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
 import me.thanhtnt2.fluidcompact.core.FluidCompactAttachments;
 import me.thanhtnt2.fluidcompact.core.PumpStatistics;
-import me.thanhtnt2.fluidcompact.integration.mi.MiPumpTargeting;
+import me.thanhtnt2.fluidcompact.compat.modernindustrialization.MiPumpTargeting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;

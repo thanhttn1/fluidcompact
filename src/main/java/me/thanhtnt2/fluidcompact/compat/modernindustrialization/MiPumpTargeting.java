@@ -1,4 +1,4 @@
-package me.thanhtnt2.fluidcompact.integration.mi;
+package me.thanhtnt2.fluidcompact.compat.modernindustrialization;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 

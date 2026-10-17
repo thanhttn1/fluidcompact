@@ -10,6 +10,7 @@ import me.thanhtnt2.fluidcompact.compat.fluidlogged.FluidloggedCompatModule;
 import me.thanhtnt2.fluidcompact.compat.flowingfluids.FlowingFluidsPipesCompatModule;
 import me.thanhtnt2.fluidcompact.compat.info.InfoCompatModule;
 import me.thanhtnt2.fluidcompact.compat.mekanism.MekanismCompatModule;
+import me.thanhtnt2.fluidcompact.compat.modernindustrialization.ModernIndustrializationCompatModule;
 import me.thanhtnt2.fluidcompact.compat.mekanismelements.MekanismElementsCompatModule;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.DebugSnapshot;
@@ -34,12 +35,12 @@ public final class CompatBootstrap {
 
     /** Registers the built-in modules. Called from the mod constructor so addons can register theirs too. */
     public static void registerBuiltInModules() {
-        // Already wired by the original code path; listed here for the config tab and the log only
-        CompatModuleRegistry.register(new InfoCompatModule("modern_industrialization", "modern_industrialization", "Modern Industrialization (Water Pumps)"));
+        // Already wired elsewhere (backend, Jade, JEI); listed here for the config tab and the log only
         CompatModuleRegistry.register(new InfoCompatModule("flowing_fluids", "flowing_fluids", "Flowing Fluids (drain backend)"));
         CompatModuleRegistry.register(new InfoCompatModule("jade", "jade", "Jade (pump tooltip)"));
         CompatModuleRegistry.register(new InfoCompatModule("jei", "jei", "Just Enough Items (pump info page)"));
         // New isolated modules
+        CompatModuleRegistry.register(new ModernIndustrializationCompatModule());
         CompatModuleRegistry.register(new MekanismCompatModule());
         CompatModuleRegistry.register(new MekanismElementsCompatModule());
         CompatModuleRegistry.register(new FluidloggedCompatModule());

@@ -1,4 +1,4 @@
-package me.thanhtnt2.fluidcompact.integration.mi;
+package me.thanhtnt2.fluidcompact.compat.modernindustrialization;
 
 import java.util.ArrayList;
 import java.util.List;

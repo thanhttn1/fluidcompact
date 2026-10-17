@@ -50,6 +50,9 @@ public final class FlowingFluidsPipesCompatModule implements CompatModule {
             FlowingFluidsPipeRules.registerNonDisplacers(pipes, tags);
         }
         NeoForge.EVENT_BUS.addListener(FlowingFluidsPipeRules::onServerStarted);
+        if (FluidCompactCompatConfig.FF_PIPES_CLEAN_ORPHAN_WATER.get()) {
+            OrphanPipeWaterJanitor.register(Set.copyOf(pipes));
+        }
         if (FluidCompactLog.isDebugMode()) {
             PipeUpdateTracer.register(Set.copyOf(pipes));
             FluidCompactLog.info("[flowing_fluids_pipes] debug mode: tracing every pipe block update");

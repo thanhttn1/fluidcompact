@@ -12,11 +12,10 @@ An unofficial intermediary compatibility mod that helps Flowing Fluids understan
 '''
 credits='''Flowing Fluids by Traben (GNU LGPL 3.0), required and not bundled. See CREDITS.md for every mod FluidCompact works with.'''
 
-# Needed so the Modern Industrialization pump hook is picked up by Mixin
-[[mixins]]
-config="${mod_id}.mixins.json"
-
 # Compat modules: one mixin config per mod so each hook is guarded and removable on its own
+[[mixins]]
+config="${mod_id}.compat.modernindustrialization.mixins.json"
+
 [[mixins]]
 config="${mod_id}.compat.mekanism.mixins.json"
 

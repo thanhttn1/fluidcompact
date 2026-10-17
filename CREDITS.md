@@ -19,7 +19,7 @@ What FluidCompact does with it, stated plainly:
 * The goal is the opposite of copying: FluidCompact teaches Flowing Fluids' world about other mods' water pumps
   (Modern Industrialization, Mekanism, ...) so those machines drain the world instead of creating fluid.
 * All the fluid physics people enjoy are Traben's work. Please support the original mod and report
-  FluidCompact issues to me (Via Github or Discord), do not flood author page.
+  Fluid Compact issues to me (via Github or Discord), please do not flood the author page.
 
 ## Other mods FluidCompact works with
 

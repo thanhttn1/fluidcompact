@@ -102,7 +102,15 @@
   "fluidcompact.option.ffPipesNonDisplacers": "Pipes Never Push Fluid Out",
   "fluidcompact.option.ffPipesNonDisplacers.desc": "Registers pipes in Flowing Fluids as blocks that do not displace fluid, through its public API.",
   "fluidcompact.option.ffPipesWaterlogMode": "Waterlogged Block Flow Mode",
-  "fluidcompact.option.ffPipesWaterlogMode.desc": "IGNORE keeps submerged pipes submerged, but it is a global Flowing Fluids setting that also affects other waterlogged blocks. KEEP_FLOWING_FLUIDS_SETTING changes nothing. Applied in memory when a world starts.",
+  "fluidcompact.option.ffPipesWaterlogMode.desc": "GLOBAL Flowing Fluids setting, also affects slabs and stairs. IGNORE (safe, default): pipes neither take nor give water, so they cannot duplicate it. KEEP_FLOWING_FLUIDS_SETTING changes nothing. Other modes are experimental and need the option below. Applied in memory when a world starts.",
   "fluidcompact.option.logDebug": "DEBUG MODE (log everything)",
-  "fluidcompact.option.logDebug.desc": "Logs a full config dump, every loaded mod, every fluid intake without throttling and every pipe block update. Files get big, use it only for bug reports. Pipe tracing needs a restart."
+  "fluidcompact.option.logDebug.desc": "Logs a full config dump, every loaded mod, every fluid intake without throttling and every pipe block update. Files get big, use it only for bug reports. Pipe tracing needs a restart.",
+  "fluidcompact.option.ffPipesAllowExperimental": "Allow Experimental Modes (DANGEROUS)",
+  "fluidcompact.option.ffPipesAllowExperimental.desc": "Lets the mode above use values other than IGNORE / KEEP. Water duplication through pipes was observed with them. Testing only.",
+  "fluidcompact.option.ffPipesCleanOrphan": "Clean Orphan Pipe Water",
+  "fluidcompact.option.ffPipesCleanOrphan.desc": "Removes water left in a waterlogged pipe once no non-pipe neighbour holds water. Stops hanging water cubes and stuck water.",
+  "fluidcompact.option.ffPipesCleanupInterval": "Cleanup Interval (ticks)",
+  "fluidcompact.option.ffPipesCleanupInterval.desc": "Ticks between cleanup passes. Higher = less lag, slower cleanup.",
+  "fluidcompact.option.ffPipesCleanupRadius": "Cleanup Radius (chunks)",
+  "fluidcompact.option.ffPipesCleanupRadius.desc": "Only pipes within this many chunks of a player are cleaned. Lower = less lag."
 }

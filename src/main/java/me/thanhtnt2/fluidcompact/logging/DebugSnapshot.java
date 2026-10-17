@@ -36,7 +36,7 @@ public final class DebugSnapshot {
     }
 
     private static void logMixinState() {
-        for (String moduleId : new String[] {"mekanism", "mekanism_elements"}) {
+        for (String moduleId : new String[] {"modern_industrialization", "mekanism", "mekanism_elements"}) {
             FluidCompactLog.info("mixin applied [{}] = {}", moduleId, CompatMixinState.isApplied(moduleId));
         }
     }
@@ -65,8 +65,11 @@ public final class DebugSnapshot {
                 FluidCompactCompatConfig.FLUIDLOGGED_ENABLED.get(), FluidCompactCompatConfig.FLUIDLOGGED_FLUIDLOGGABLE.get(),
                 FluidCompactCompatConfig.FLUIDLOGGED_PERMEABLE.get(), FluidCompactCompatConfig.FLUIDLOGGED_SHAPE_INDEPENDENT.get(),
                 FluidCompactCompatConfig.FLUIDLOGGED_BLOCK_CLASSES.get(), FluidCompactCompatConfig.FLUIDLOGGED_EXTRA_BLOCKS.get());
-        FluidCompactLog.info("config[flowing_fluids_pipes] enabled={} nonDisplacers={} waterlogFlowMode={}",
+        FluidCompactLog.info("config[flowing_fluids_pipes] enabled={} nonDisplacers={} waterlogFlowMode={} allowExperimental={}",
                 FluidCompactCompatConfig.FF_PIPES_ENABLED.get(), FluidCompactCompatConfig.FF_PIPES_NON_DISPLACERS.get(),
-                FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE.get());
+                FluidCompactCompatConfig.FF_PIPES_WATERLOG_MODE.get(), FluidCompactCompatConfig.FF_PIPES_ALLOW_EXPERIMENTAL_MODES.get());
+        FluidCompactLog.info("config[flowing_fluids_pipes] cleanOrphanPipeWater={} intervalTicks={} chunkRadius={}",
+                FluidCompactCompatConfig.FF_PIPES_CLEAN_ORPHAN_WATER.get(), FluidCompactCompatConfig.FF_PIPES_CLEANUP_INTERVAL_TICKS.get(),
+                FluidCompactCompatConfig.FF_PIPES_CLEANUP_CHUNK_RADIUS.get());
     }
 }
