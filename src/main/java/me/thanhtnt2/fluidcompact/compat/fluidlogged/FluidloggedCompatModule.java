@@ -30,6 +30,11 @@ public final class FluidloggedCompatModule implements CompatModule {
             FluidCompactLog.info("[fluidlogged] disabled in config, no addon registered");
             return;
         }
+        if (!FluidCompactCompatConfig.FLUIDLOGGED_ACCEPT_DUPLICATION_RISK.get()) {
+            FluidCompactLog.info("[fluidlogged] addon NOT registered: it can duplicate water together with Flowing Fluids "
+                    + "(set fluidlogged_pipes.acceptDuplicationRisk=true to force it)");
+            return;
+        }
         FluidloggedAddonRegistrar.register();
     }
 }

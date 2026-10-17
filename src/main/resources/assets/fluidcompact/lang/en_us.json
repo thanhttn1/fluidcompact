@@ -36,7 +36,7 @@
   "fluidcompact.group.mekanism_elements": "Mekanism Elements (Seawater Pump)",
   "fluidcompact.group.mekanism_elements.desc": "Makes the Seawater Pump drain the water source below it.",
   "fluidcompact.group.fluidlogged": "Fluidlogged (fluid through pipes)",
-  "fluidcompact.group.fluidlogged.desc": "Lets fluids enter and flow through pipes and cables. Changes need a game restart.",
+  "fluidcompact.group.fluidlogged.desc": "Lets fluids enter pipes through Fluidlogged. OFF by default because it was seen to duplicate water with Flowing Fluids. Changes need a game restart.",
   "fluidcompact.group.logging": "Log file",
   "fluidcompact.status.active": "Active",
   "fluidcompact.status.missing_mod": "Not installed",
@@ -112,5 +112,7 @@
   "fluidcompact.option.ffPipesCleanupInterval": "Cleanup Interval (ticks)",
   "fluidcompact.option.ffPipesCleanupInterval.desc": "Ticks between cleanup passes. Higher = less lag, slower cleanup.",
   "fluidcompact.option.ffPipesCleanupRadius": "Cleanup Radius (chunks)",
-  "fluidcompact.option.ffPipesCleanupRadius.desc": "Only pipes within this many chunks of a player are cleaned. Lower = less lag."
+  "fluidcompact.option.ffPipesCleanupRadius.desc": "Only pipes within this many chunks of a player are cleaned. Lower = less lag.",
+  "fluidcompact.option.fluidloggedRisk": "Accept Duplication Risk (DANGEROUS)",
+  "fluidcompact.option.fluidloggedRisk.desc": "Fluidlogged keeps a hidden copy of the fluid inside pipes. With Flowing Fluids this was seen to duplicate water, so the addon is only registered when this is on. Keep it off. Needs a restart."
 }

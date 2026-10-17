@@ -162,6 +162,7 @@ public final class YaclConfigScreenFactory {
                 .name(Component.translatable("fluidcompact.group.fluidlogged"))
                 .description(OptionDescription.of(Component.translatable("fluidcompact.group.fluidlogged.desc")))
                 .option(toggle("fluidloggedEnabled", FluidCompactCompatConfig.FLUIDLOGGED_ENABLED, installed))
+                .option(toggle("fluidloggedRisk", FluidCompactCompatConfig.FLUIDLOGGED_ACCEPT_DUPLICATION_RISK, installed))
                 .option(toggle("fluidloggedFluidloggable", FluidCompactCompatConfig.FLUIDLOGGED_FLUIDLOGGABLE, installed))
                 .option(toggle("fluidloggedPermeable", FluidCompactCompatConfig.FLUIDLOGGED_PERMEABLE, installed))
                 .option(toggle("fluidloggedShapeIndependent", FluidCompactCompatConfig.FLUIDLOGGED_SHAPE_INDEPENDENT, installed))

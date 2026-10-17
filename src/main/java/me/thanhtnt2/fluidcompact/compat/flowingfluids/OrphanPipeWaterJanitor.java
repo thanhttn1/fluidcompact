@@ -98,11 +98,24 @@ final class OrphanPipeWaterJanitor {
         List<BlockPos> orphans = new ArrayList<>();
         for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
             BlockState state = blockEntity.getBlockState();
+            traceHiddenFluid(level, state, blockEntity.getBlockPos());
             if (isWaterloggedPipe(state) && !hasWaterOutsidePipes(level, blockEntity.getBlockPos())) {
                 orphans.add(blockEntity.getBlockPos().immutable());
             }
         }
         return orphans;
+    }
+
+    // Debug aid: fluid that the world reports inside a pipe whose own block state says "empty" is held somewhere else
+    private void traceHiddenFluid(ServerLevel level, BlockState state, BlockPos pos) {
+        if (!FluidCompactLog.isDebugMode() || !pipes.contains(state.getBlock()) || !state.getFluidState().isEmpty()) {
+            return;
+        }
+        if (!level.getFluidState(pos).isEmpty()) {
+            FluidCompactLog.trace("HIDDEN fluid in pipe block={} pos={} worldFluid={} (block state is empty)",
+                    BuiltInRegistries.BLOCK.getKey(state.getBlock()), pos.toShortString(),
+                    BuiltInRegistries.FLUID.getKey(level.getFluidState(pos).getType()));
+        }
     }
 
     private boolean isWaterloggedPipe(BlockState state) {

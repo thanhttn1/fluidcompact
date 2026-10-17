@@ -41,6 +41,7 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ENABLED;
+    public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ACCEPT_DUPLICATION_RISK;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_FLUIDLOGGABLE;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_PERMEABLE;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_SHAPE_INDEPENDENT;
@@ -115,6 +116,11 @@ public final class FluidCompactCompatConfig {
         FLUIDLOGGED_ENABLED = BUILDER
                 .comment("Register a Fluidlogged addon so fluids can enter and cross pipe blocks. Needs a restart.")
                 .define("enabled", true);
+        FLUIDLOGGED_ACCEPT_DUPLICATION_RISK = BUILDER
+                .comment("DANGEROUS, keep false. Fluidlogged keeps its own hidden copy of the fluid inside a pipe, next to the",
+                        "block's waterlogged flag. Together with Flowing Fluids this was seen to duplicate water.",
+                        "The addon is therefore only registered when this is true.")
+                .define("acceptDuplicationRisk", false);
         FLUIDLOGGED_FLUIDLOGGABLE = BUILDER
                 .comment("Pipes can hold any fluid, so flowing fluid no longer destroys them.")
                 .define("makeFluidloggable", true);
