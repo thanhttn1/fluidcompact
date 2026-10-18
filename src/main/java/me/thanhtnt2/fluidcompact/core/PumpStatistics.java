@@ -6,6 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 /**
  * Lifetime numbers of one pump, stored as a data attachment on its block entity.
  *
+ * <p>Deliberately four flat numbers and nothing else: no block positions, lists or references, so the data
+ * of a pump can never grow with the size of the world or the time it has been running.
+ *
  * @param lastIntakeGameTime game time of the last drain, or -1 when the pump never drained anything
  */
 public record PumpStatistics(

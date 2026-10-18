@@ -40,6 +40,8 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.IntValue SEAWATER_MIN_TICKS_BETWEEN_INTAKES;
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
+    public static final ModConfigSpec.BooleanValue PNC_PICKUP_ENABLED;
+
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ENABLED;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ACCEPT_DUPLICATION_RISK;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_FLUIDLOGGABLE;
@@ -110,6 +112,14 @@ public final class FluidCompactCompatConfig {
         SEAWATER_SHORTFALL = BUILDER
                 .comment("When the world cannot pay a whole cycle: SCALE_DOWN produces less, STOP produces nothing.")
                 .defineEnum("shortfallBehavior", ShortfallBehavior.SCALE_DOWN);
+        BUILDER.pop();
+
+        BUILDER.push("pneumaticcraft_pickup");
+        PNC_PICKUP_ENABLED = BUILDER
+                .comment("PneumaticCraft's Liquid Hopper and Gas Lift leave a water source block in place when it has two water",
+                        "neighbours, which makes their water infinite. When this is true and water is finite, they remove it like any other source.",
+                        "Drones (Liquid Import) already remove every source block, so they need no hook.")
+                .define("enabled", true);
         BUILDER.pop();
 
         BUILDER.push("fluidlogged_pipes");

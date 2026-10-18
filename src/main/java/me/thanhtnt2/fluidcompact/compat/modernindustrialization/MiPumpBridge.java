@@ -78,11 +78,13 @@ public final class MiPumpBridge {
 
     private static List<BlockPos> findSourcePositions(ServerLevel level, BlockPos pumpPos) {
         List<BlockPos> sources = new ArrayList<>(RING_DX.length);
+        // One reusable cursor: an immutable position is only created for the few blocks that really are sources
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int index = 0; index < RING_DX.length; index++) {
-            BlockPos candidate = pumpPos.offset(RING_DX[index], 0, RING_DZ[index]);
-            FluidState fluidState = level.getFluidState(candidate);
+            cursor.set(pumpPos.getX() + RING_DX[index], pumpPos.getY(), pumpPos.getZ() + RING_DZ[index]);
+            FluidState fluidState = level.getFluidState(cursor);
             if (fluidState.isSource() && fluidState.getType().isSame(PUMPED_FLUID)) {
-                sources.add(candidate);
+                sources.add(cursor.immutable());
             }
         }
         return sources;

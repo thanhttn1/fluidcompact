@@ -80,6 +80,7 @@ public final class YaclConfigScreenFactory {
                 .group(buildModernIndustrializationGroup())
                 .group(buildMekanismGroup())
                 .group(buildMekanismElementsGroup())
+                .group(buildPneumaticCraftGroup())
                 .group(buildFluidloggedGroup())
                 .group(buildFlowingFluidsPipesGroup());
         category.group(textList("fluidloggedBlockClasses", FluidCompactCompatConfig.FLUIDLOGGED_BLOCK_CLASSES, isLoaded("fluidlogged")));
@@ -153,6 +154,15 @@ public final class YaclConfigScreenFactory {
                 .option(slider("seawaterDrainPercent", FluidCompactCompatConfig.SEAWATER_DRAIN_PERCENT, 1, 1000, 5, installed))
                 .option(slider("seawaterMinTicks", FluidCompactCompatConfig.SEAWATER_MIN_TICKS_BETWEEN_INTAKES, 0, 6000, 20, installed))
                 .option(choice("seawaterShortfall", FluidCompactCompatConfig.SEAWATER_SHORTFALL, ShortfallBehavior.class, installed))
+                .build();
+    }
+
+    private static OptionGroup buildPneumaticCraftGroup() {
+        boolean installed = isLoaded("pneumaticcraft");
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.pneumaticcraft"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.pneumaticcraft.desc")))
+                .option(toggle("pncPickupEnabled", FluidCompactCompatConfig.PNC_PICKUP_ENABLED, installed))
                 .build();
     }
 

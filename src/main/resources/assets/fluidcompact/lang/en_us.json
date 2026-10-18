@@ -114,5 +114,9 @@
   "fluidcompact.option.ffPipesCleanupRadius": "Cleanup Radius (chunks)",
   "fluidcompact.option.ffPipesCleanupRadius.desc": "Only pipes within this many chunks of a player are cleaned. Lower = less lag.",
   "fluidcompact.option.fluidloggedRisk": "Accept Duplication Risk (DANGEROUS)",
-  "fluidcompact.option.fluidloggedRisk.desc": "Fluidlogged keeps a hidden copy of the fluid inside pipes. With Flowing Fluids this was seen to duplicate water, so the addon is only registered when this is on. Keep it off. Needs a restart."
+  "fluidcompact.option.fluidloggedRisk.desc": "Fluidlogged keeps a hidden copy of the fluid inside pipes. With Flowing Fluids this was seen to duplicate water, so the addon is only registered when this is on. Keep it off. Needs a restart.",
+  "fluidcompact.group.pneumaticcraft": "PneumaticCraft: Repressurized",
+  "fluidcompact.group.pneumaticcraft.desc": "Liquid Hopper and Gas Lift stop duplicating water. Drones already remove every source block.",
+  "fluidcompact.option.pncPickupEnabled": "Enabled",
+  "fluidcompact.option.pncPickupEnabled.desc": "Switch off PneumaticCraft's infinite water rule for pickups while water is finite."
 }

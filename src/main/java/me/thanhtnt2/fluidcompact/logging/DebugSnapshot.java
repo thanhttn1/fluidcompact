@@ -36,7 +36,7 @@ public final class DebugSnapshot {
     }
 
     private static void logMixinState() {
-        for (String moduleId : new String[] {"modern_industrialization", "mekanism", "mekanism_elements"}) {
+        for (String moduleId : new String[] {"modern_industrialization", "mekanism", "mekanism_elements", "pneumaticcraft"}) {
             FluidCompactLog.info("mixin applied [{}] = {}", moduleId, CompatMixinState.isApplied(moduleId));
         }
     }
@@ -61,6 +61,7 @@ public final class DebugSnapshot {
         FluidCompactLog.info("config[mekanism_elements_seawater_pump] enabled={} drainPercent={} minTicks={} shortfall={}",
                 FluidCompactCompatConfig.SEAWATER_PUMP_ENABLED.get(), FluidCompactCompatConfig.SEAWATER_DRAIN_PERCENT.get(),
                 FluidCompactCompatConfig.SEAWATER_MIN_TICKS_BETWEEN_INTAKES.get(), FluidCompactCompatConfig.SEAWATER_SHORTFALL.get());
+        FluidCompactLog.info("config[pneumaticcraft_pickup] enabled={}", FluidCompactCompatConfig.PNC_PICKUP_ENABLED.get());
         FluidCompactLog.info("config[fluidlogged_pipes] acceptDuplicationRisk={}", FluidCompactCompatConfig.FLUIDLOGGED_ACCEPT_DUPLICATION_RISK.get());
         FluidCompactLog.info("config[fluidlogged_pipes] enabled={} fluidloggable={} permeable={} shapeIndependent={} classes={} extra={}",
                 FluidCompactCompatConfig.FLUIDLOGGED_ENABLED.get(), FluidCompactCompatConfig.FLUIDLOGGED_FLUIDLOGGABLE.get(),

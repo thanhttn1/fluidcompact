@@ -1,10 +1,11 @@
 package me.thanhtnt2.fluidcompact.compat.flowingfluids;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.core.BlockPos;
@@ -62,7 +63,7 @@ final class OrphanPipeWaterJanitor {
             return;
         }
         int radius = FluidCompactCompatConfig.FF_PIPES_CLEANUP_CHUNK_RADIUS.get();
-        Set<Long> visitedChunks = new HashSet<>();
+        LongSet visitedChunks = new LongOpenHashSet();
         int cleaned = 0;
         for (ServerPlayer player : players) {
             ChunkPos center = player.chunkPosition();
@@ -77,7 +78,7 @@ final class OrphanPipeWaterJanitor {
         }
     }
 
-    private int cleanChunkOnce(ServerLevel level, int chunkX, int chunkZ, Set<Long> visitedChunks) {
+    private int cleanChunkOnce(ServerLevel level, int chunkX, int chunkZ, LongSet visitedChunks) {
         if (!visitedChunks.add(ChunkPos.asLong(chunkX, chunkZ))) {
             return 0;
         }
