@@ -24,11 +24,7 @@ What FluidCompact does with it, stated plainly:
 ## Reporting bugs
 
 **Report every FluidCompact bug to me (thanhtnt2), not to the author of Flowing Fluids or of any other mod.**
-Problems that show up only when FluidCompact is installed are very likely mine, and the original authors never
-agreed to support this mod.
-
-* GitHub issues: **<ADD YOUR GITHUB ISSUES LINK HERE>**
-* Discord: **<ADD YOUR DISCORD INVITE HERE>**
+Problems that show up only when FluidCompact is installed are very likely mine.
 
 Please attach `logs/fluidcompact.log` (turn on `logging.debugMode` first if you can).
 
