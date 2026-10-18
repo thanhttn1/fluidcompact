@@ -14,6 +14,7 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 
 * **Modern Industrialization** Bronze, Steel and Electric Water Pumps stop creating water: every pumped
   millibucket is drained from the water source blocks around the pump.
+* **PneumaticCraft: Repressurized** Liquid Hopper and Gas Lift drain the world instead of duplicating water.
 * **Mekanism** Electric Pump and **Mekanism Elements** Seawater Pump drain the world too.
 * **Fluidlogged** support so fluid enters and flows through pipes and cables instead of breaking or blocking.
 * Pipes (MI, Modern Dynamics, XNet, Refined Storage, ...) never touch world fluid themselves, so they become
@@ -27,7 +28,7 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 
 * NeoForge 21.1.x, Minecraft 1.21.1
 * **Flowing Fluids 1.0.6 or newer (required)**
-* Optional: Modern Industrialization, Mekanism, Mekanism Elements, Fluidlogged, Jade, JEI, YACL
+* Optional: Modern Industrialization, Mekanism, Mekanism Elements, PneumaticCraft, Fluidlogged, Jade, JEI, YACL
 
 ## Addon API (`me.thanhtnt2.fluidcompact.api`)
 
@@ -41,6 +42,12 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 
 Copy the jars listed in `libs/README.txt` into `libs/` (compile-only references, never packed into the jar),
 then run `gradlew build`. The result is in `build/libs/`.
+
+## Reporting bugs
+
+Report FluidCompact bugs to thanhtnt2 through GitHub issues (<ADD YOUR GITHUB ISSUES LINK HERE>) and Discord
+(<ADD YOUR DISCORD INVITE HERE>), **never to the authors of Flowing Fluids or the other mods**.
+Please attach `logs/fluidcompact.log`.
 
 ## Credits and license
 

@@ -18,8 +18,19 @@ What FluidCompact does with it, stated plainly:
   used purely as a compile-time reference while building.
 * The goal is the opposite of copying: FluidCompact teaches Flowing Fluids' world about other mods' water pumps
   (Modern Industrialization, Mekanism, ...) so those machines drain the world instead of creating fluid.
-* All the fluid physics people enjoy are Traben's work. Please support the original mod and report
-  Fluid Compact issues to me (via Github or Discord), please do not flood the author page.
+* All the fluid physics people enjoy are Traben's work. Support the original mod.
+* report Fluid Compact issues to me (via Github or Discord), please do not flood the author page.
+
+## Reporting bugs
+
+**Report every FluidCompact bug to me (thanhtnt2), not to the author of Flowing Fluids or of any other mod.**
+Problems that show up only when FluidCompact is installed are very likely mine, and the original authors never
+agreed to support this mod.
+
+* GitHub issues: **<ADD YOUR GITHUB ISSUES LINK HERE>**
+* Discord: **<ADD YOUR DISCORD INVITE HERE>**
+
+Please attach `logs/fluidcompact.log` (turn on `logging.debugMode` first if you can).
 
 ## Other mods FluidCompact works with
 
@@ -35,6 +46,10 @@ Licenses below are as declared in the mods' own metadata (versions we tested aga
 | Jade 15.x | Snownee | CC-BY-NC-SA-4.0 |
 | Just Enough Items 19.x | mezz | MIT |
 | YetAnotherConfigLib 3.8.x | isXander | LGPL-3.0-or-later |
+| PneumaticCraft: Repressurized 8.2.x | desht, MineMaarten | GPL-3.0 |
+
+PneumaticCraft addons checked (no fluid mechanics to hook): PNC Ocean Addons (desht, LGPL-3.0), PNC Electrostatic Fix (JuiceyBeans, LGPL-3.0).
+FluidCompact copies no PneumaticCraft code: it only reaches one setting of PneumaticCraft by name at runtime.
 
 Also checked for compatibility (no changes needed): Modern Dynamics (Technici4n, LGPLv3), XNet (McJty, MIT),
 Refined Storage (Refined Mods, MIT), Tesseract API (Swedz, MIT), Mekanism Generators (MIT), mekmm (MIT).
