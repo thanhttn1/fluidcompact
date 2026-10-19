@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import me.thanhtnt2.fluidcompact.compat.CompatBootstrap;
+import me.thanhtnt2.fluidcompact.compat.pneumaticcraft.PneumaticAttachments;
+import me.thanhtnt2.fluidcompact.compat.pneumaticcraft.network.PneumaticNetwork;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.config.FluidCompactConfig;
 import me.thanhtnt2.fluidcompact.core.FluidCompactAttachments;
@@ -34,6 +36,9 @@ public final class FluidCompact {
     private static void registerCompatLayer(IEventBus modEventBus, ModContainer modContainer) {
         FluidCompactLog.initialize();
         modContainer.registerConfig(ModConfig.Type.COMMON, FluidCompactCompatConfig.SPEC, "fluidcompact-compat.toml");
+        // Both are free of PneumaticCraft types, so registering them is safe whether or not it is installed
+        PneumaticAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        modEventBus.addListener(PneumaticNetwork::onRegisterPayloads);
         CompatBootstrap.registerBuiltInModules();
         // Added after the core listener on purpose: its setup work is queued first, so the API is bound first
         modEventBus.addListener(CompatBootstrap::onCommonSetup);
