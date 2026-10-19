@@ -1,5 +1,6 @@
 package me.thanhtnt2.fluidcompact;
 
+import me.thanhtnt2.fluidcompact.client.pneumaticcraft.PneumaticHopperScreenHook;
 import me.thanhtnt2.fluidcompact.client.yacl.YaclConfigScreenFactory;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
@@ -8,7 +9,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
-/** Client-only entry point; never loaded on dedicated servers. */
 @Mod(value = FluidCompact.MODID, dist = Dist.CLIENT)
 public final class FluidCompactClient {
 
@@ -21,5 +21,8 @@ public final class FluidCompactClient {
                 ? (modContainer, parentScreen) -> YaclConfigScreenFactory.create(parentScreen)
                 : ConfigurationScreen::new;
         container.registerExtensionPoint(IConfigScreenFactory.class, screenFactory);
+        if (ModList.get().isLoaded("pneumaticcraft")) {
+            PneumaticHopperScreenHook.register();
+        }
     }
 }
