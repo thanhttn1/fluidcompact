@@ -116,7 +116,19 @@
   "fluidcompact.option.fluidloggedRisk": "Accept Duplication Risk (DANGEROUS)",
   "fluidcompact.option.fluidloggedRisk.desc": "Fluidlogged keeps a hidden copy of the fluid inside pipes. With Flowing Fluids this was seen to duplicate water, so the addon is only registered when this is on. Keep it off. Needs a restart.",
   "fluidcompact.group.pneumaticcraft": "PneumaticCraft: Repressurized",
-  "fluidcompact.group.pneumaticcraft.desc": "Liquid Hopper and Gas Lift stop duplicating water. Drones already remove every source block.",
+  "fluidcompact.group.pneumaticcraft.desc": "Liquid Hopper and Gas Lift stop duplicating water, and the Liquid Hopper can also drain the thin leftover water of a pond.",
   "fluidcompact.option.pncPickupEnabled": "Enabled",
-  "fluidcompact.option.pncPickupEnabled.desc": "Switch off PneumaticCraft's infinite water rule for pickups while water is finite."
+  "fluidcompact.option.pncPickupEnabled.desc": "Switch off PneumaticCraft's infinite water rule for pickups while water is finite.",
+  "fluidcompact.pnc.hopper_pull.on": "FluidCompact: this hopper also drains leftover water. Click to turn off.",
+  "fluidcompact.pnc.hopper_pull.off": "FluidCompact: leftover water drain is off for this hopper. Click to turn on.",
+  "fluidcompact.option.pncLeftoverWater": "Drain Leftover Water",
+  "fluidcompact.option.pncLeftoverWater.desc": "Liquid Hopper also drains the thin leftover water of a pond that PneumaticCraft cannot pick up. Needs Flowing Fluids. Each hopper has its own button in its screen.",
+  "fluidcompact.option.pncLeftoverWithoutUpgrade": "Leftover Drain Without Upgrade",
+  "fluidcompact.option.pncLeftoverWithoutUpgrade.desc": "Lets the hopper drain leftover water without a Dispenser Upgrade. Off by default so it cannot be used as a shortcut: with the upgrade it also takes whole source blocks.",
+  "fluidcompact.option.pncRequireOutput": "Require Connected Container",
+  "fluidcompact.option.pncRequireOutput.desc": "Only pull water while a tank of any mod that accepts water is connected to the hopper's output side.",
+  "fluidcompact.option.pncEmptyRetry": "Retry Delay When Empty (ticks)",
+  "fluidcompact.option.pncEmptyRetry.desc": "After finding no water a hopper waits this long before looking again. Higher = less work.",
+  "fluidcompact.option.pncGuiButton": "Show Button In Hopper Screen",
+  "fluidcompact.option.pncGuiButton.desc": "Shows the FluidCompact on/off button in the Liquid Hopper screen (client setting)."
 }

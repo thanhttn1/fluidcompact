@@ -3,6 +3,8 @@ package me.thanhtnt2.fluidcompact.compat.pneumaticcraft;
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -15,7 +17,26 @@ import net.neoforged.neoforge.common.ModConfigSpec;
  */
 public final class PneumaticPickupBridge {
 
+    // PneumaticCraft only calls its source pickup for a hopper that has the Dispenser Upgrade, so seeing the call
+    // at a given position on a given tick tells the leftover-water pull that the upgrade is present.
+    // Two plain numbers, only ever touched on the server thread.
+    private static long lastPickupPos = Long.MIN_VALUE;
+    private static long lastPickupGameTime = -1L;
+
     private PneumaticPickupBridge() {
+    }
+
+    /** Called right before PneumaticCraft tries to pick up the fluid block at {@code pos}. */
+    public static void notePickupAttempt(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            lastPickupPos = pos.asLong();
+            lastPickupGameTime = level.getGameTime();
+        }
+    }
+
+    /** True when PneumaticCraft itself just tried to pick up the block at {@code pos} (this tick). */
+    public static boolean pickupWasAttempted(Level level, BlockPos pos) {
+        return lastPickupGameTime == level.getGameTime() && lastPickupPos == pos.asLong();
     }
 
     /**

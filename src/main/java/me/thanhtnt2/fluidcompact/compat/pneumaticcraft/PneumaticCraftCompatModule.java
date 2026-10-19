@@ -29,10 +29,15 @@ public final class PneumaticCraftCompatModule implements CompatModule {
 
     @Override
     public void initialize() {
-        if (CompatMixinState.isApplied(ID)) {
-            FluidCompactLog.info("[pneumaticcraft] pickup hook active (Liquid Hopper, Gas Lift); drones already remove every source");
+        logHook(ID, "pickup hook (Liquid Hopper, Gas Lift: no infinite water)");
+        logHook("pneumaticcraft_hopper", "Liquid Hopper leftover-water pull");
+    }
+
+    private static void logHook(String stateKey, String description) {
+        if (CompatMixinState.isApplied(stateKey)) {
+            FluidCompactLog.info("[pneumaticcraft] {} active", description);
             return;
         }
-        FluidCompactLog.warn("[pneumaticcraft] pickup hook is NOT applied; Liquid Hopper and Gas Lift keep their infinite water rule");
+        FluidCompactLog.warn("[pneumaticcraft] {} is NOT applied; PneumaticCraft keeps its own behaviour there", description);
     }
 }

@@ -23,7 +23,7 @@ What FluidCompact does with it, stated plainly:
 
 ## Reporting bugs
 
-**Report every FluidCompact bug to me (thanhtnt2), not to the author of Flowing Fluids or of any other mod.**
+**Report every FluidCompact bug to me (thanhttn1), not to the author of Flowing Fluids or of any other mod.**
 Problems that show up only when FluidCompact is installed are very likely mine.
 
 Please attach `logs/fluidcompact.log` (turn on `logging.debugMode` first if you can).
@@ -45,7 +45,10 @@ Licenses below are as declared in the mods' own metadata (versions we tested aga
 | PneumaticCraft: Repressurized 8.2.x | desht, MineMaarten | GPL-3.0 |
 
 PneumaticCraft addons checked (no fluid mechanics to hook): PNC Ocean Addons (desht, LGPL-3.0), PNC Electrostatic Fix (JuiceyBeans, LGPL-3.0).
-FluidCompact copies no PneumaticCraft code: it only reaches one setting of PneumaticCraft by name at runtime.
+FluidCompact copies no PneumaticCraft code and does not link against PneumaticCraft classes at compile time. At runtime it
+reads one setting of PneumaticCraft and adds a step after the Liquid Hopper's own import, both reached by name, and adds
+a button to the Liquid Hopper screen through NeoForge's screen event. PneumaticCraft is GPL-3.0 (copyright MineMaarten and
+desht); this project is MIT and ships none of its code or assets. If a PneumaticCraft author objects, please tell me and I will remove the hook.
 
 Also checked for compatibility (no changes needed): Modern Dynamics (Technici4n, LGPLv3), XNet (McJty, MIT),
 Refined Storage (Refined Mods, MIT), Tesseract API (Swedz, MIT), Mekanism Generators (MIT), mekmm (MIT).
