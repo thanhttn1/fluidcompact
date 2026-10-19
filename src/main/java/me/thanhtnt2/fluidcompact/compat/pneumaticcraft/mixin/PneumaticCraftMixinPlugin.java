@@ -7,8 +7,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /** Applies the pickup hook only if PneumaticCraft's shared pickup routine still reads a config flag the hook can answer. */
-public final class
-        PneumaticCraftMixinPlugin extends GuardedCompatMixinPlugin {
+public final class PneumaticCraftMixinPlugin extends GuardedCompatMixinPlugin {
 
     private static final String CONFIG_VALUE_INTERNAL_NAME = "net/neoforged/neoforge/common/ModConfigSpec$BooleanValue";
 
