@@ -45,8 +45,8 @@ then run `gradlew build`. The result is in `build/libs/`.
 
 ## Reporting bugs
 
-Report FluidCompact bugs to thanhtnt2 through GitHub issues (<ADD YOUR GITHUB ISSUES LINK HERE>) and Discord
-(<ADD YOUR DISCORD INVITE HERE>), **never to the authors of Flowing Fluids or the other mods**.
+Report FluidCompact bugs to me (thanhttn1) through GitHub issues and Discord
+(thanhnhnh), **never to the authors of Flowing Fluids or the other mods**.
 Please attach `logs/fluidcompact.log`.
 
 ## Credits and license
