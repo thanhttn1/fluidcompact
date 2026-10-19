@@ -41,6 +41,11 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
     public static final ModConfigSpec.BooleanValue PNC_PICKUP_ENABLED;
+    public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WATER;
+    public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WITHOUT_UPGRADE;
+    public static final ModConfigSpec.BooleanValue PNC_REQUIRE_OUTPUT_CONTAINER;
+    public static final ModConfigSpec.IntValue PNC_EMPTY_RETRY_TICKS;
+    public static final ModConfigSpec.BooleanValue PNC_GUI_BUTTON;
 
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ENABLED;
     public static final ModConfigSpec.BooleanValue FLUIDLOGGED_ACCEPT_DUPLICATION_RISK;
@@ -120,6 +125,24 @@ public final class FluidCompactCompatConfig {
                         "neighbours, which makes their water infinite. When this is true and water is finite, they remove it like any other source.",
                         "Drones (Liquid Import) already remove every source block, so they need no hook.")
                 .define("enabled", true);
+        PNC_LEFTOVER_WATER = BUILDER
+                .comment("Liquid Hopper also drains the thin leftover water of a pond (partial levels that PneumaticCraft cannot pick up",
+                        "because they are not source blocks). Needs Flowing Fluids. Each hopper has its own on/off button in its GUI.")
+                .define("liquidHopperLeftoverWater", true);
+        PNC_LEFTOVER_WITHOUT_UPGRADE = BUILDER
+                .comment("Allow the leftover-water drain WITHOUT a Dispenser Upgrade. Off by default so it cannot be used as a shortcut:",
+                        "with the upgrade the hopper takes whole source blocks too, without it only the thin leftover water.")
+                .define("liquidHopperLeftoverWithoutUpgrade", false);
+        PNC_REQUIRE_OUTPUT_CONTAINER = BUILDER
+                .comment("Only pull water while a tank (any mod) that accepts water is connected to the hopper's output side.",
+                        "Stops a hopper from filling itself and then idling or leaking.")
+                .define("requireOutputContainer", true);
+        PNC_EMPTY_RETRY_TICKS = BUILDER
+                .comment("After a hopper found no water to drain it waits this many ticks before looking again. Higher = less work.")
+                .defineInRange("emptyRetryTicks", 20, 1, 1200);
+        PNC_GUI_BUTTON = BUILDER
+                .comment("Show the FluidCompact on/off button in the Liquid Hopper screen (client setting).")
+                .define("guiButton", true);
         BUILDER.pop();
 
         BUILDER.push("fluidlogged_pipes");
