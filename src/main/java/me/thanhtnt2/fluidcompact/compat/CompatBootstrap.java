@@ -6,6 +6,7 @@ import me.thanhtnt2.fluidcompact.api.compat.CompatModule;
 import me.thanhtnt2.fluidcompact.api.compat.CompatModuleRegistry;
 import me.thanhtnt2.fluidcompact.api.compat.CompatStatus;
 import me.thanhtnt2.fluidcompact.api.event.FluidIntakeEvent;
+import me.thanhtnt2.fluidcompact.compat.create.CreateCompatModule;
 import me.thanhtnt2.fluidcompact.compat.fluidlogged.FluidloggedCompatModule;
 import me.thanhtnt2.fluidcompact.compat.flowingfluids.FlowingFluidsPipesCompatModule;
 import me.thanhtnt2.fluidcompact.compat.info.InfoCompatModule;
@@ -29,7 +30,7 @@ public final class CompatBootstrap {
 
     private static final List<String> MODS_TO_REPORT = List.of(
             "neoforge", "flowing_fluids", "modern_industrialization", "mekanism", "mekanismgenerators",
-            "mekanismelements", "mekmm", "pneumaticcraft", "pnc_ocean_addons", "pnc_electrostatic_fix", "fluidlogged", "jade", "jei", "yet_another_config_lib_v3");
+            "mekanismelements", "mekmm", "create", "pneumaticcraft", "pnc_ocean_addons", "pnc_electrostatic_fix", "fluidlogged", "jade", "jei", "yet_another_config_lib_v3");
 
     private CompatBootstrap() {
     }
@@ -45,6 +46,7 @@ public final class CompatBootstrap {
         CompatModuleRegistry.register(new MekanismCompatModule());
         CompatModuleRegistry.register(new MekanismElementsCompatModule());
         CompatModuleRegistry.register(new PneumaticCraftCompatModule());
+        CompatModuleRegistry.register(new CreateCompatModule());
         CompatModuleRegistry.register(new FluidloggedCompatModule());
         CompatModuleRegistry.register(new FlowingFluidsPipesCompatModule());
     }
