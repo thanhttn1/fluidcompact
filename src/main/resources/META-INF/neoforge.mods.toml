@@ -25,6 +25,9 @@ config="${mod_id}.compat.mekanismelements.mixins.json"
 [[mixins]]
 config="${mod_id}.compat.pneumaticcraft.mixins.json"
 
+[[mixins]]
+config="${mod_id}.compat.pneumaticcraft.hopper.mixins.json"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
@@ -101,5 +104,12 @@ config="${mod_id}.compat.pneumaticcraft.mixins.json"
     modId="pneumaticcraft"
     type="optional"
     versionRange="[8.2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="optional"
+    versionRange="[6,)"
     ordering="AFTER"
     side="BOTH"
