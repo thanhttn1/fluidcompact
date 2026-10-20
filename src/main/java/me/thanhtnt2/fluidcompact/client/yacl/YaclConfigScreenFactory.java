@@ -81,6 +81,8 @@ public final class YaclConfigScreenFactory {
                 .group(buildMekanismGroup())
                 .group(buildMekanismElementsGroup())
                 .group(buildPneumaticCraftGroup())
+                .group(buildCreateGroup())
+                .group(buildAutoBalancedGroup())
                 .group(buildFluidloggedGroup())
                 .group(buildFlowingFluidsPipesGroup());
         category.group(textList("fluidloggedBlockClasses", FluidCompactCompatConfig.FLUIDLOGGED_BLOCK_CLASSES, isLoaded("fluidlogged")));
@@ -163,6 +165,32 @@ public final class YaclConfigScreenFactory {
                 .name(Component.translatable("fluidcompact.group.pneumaticcraft"))
                 .description(OptionDescription.of(Component.translatable("fluidcompact.group.pneumaticcraft.desc")))
                 .option(toggle("pncPickupEnabled", FluidCompactCompatConfig.PNC_PICKUP_ENABLED, installed))
+                .option(toggle("pncLeftoverWater", FluidCompactCompatConfig.PNC_LEFTOVER_WATER, installed))
+                .option(toggle("pncLeftoverWithoutUpgrade", FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE, installed))
+                .option(toggle("pncRequireOutput", FluidCompactCompatConfig.PNC_REQUIRE_OUTPUT_CONTAINER, installed))
+                .option(slider("pncEmptyRetry", FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS, 1, 1200, 1, installed))
+                .option(toggle("pncGuiButton", FluidCompactCompatConfig.PNC_GUI_BUTTON, installed))
+                .build();
+    }
+
+    private static OptionGroup buildCreateGroup() {
+        boolean installed = isLoaded("create");
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.create"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.create.desc")))
+                .option(toggle("createEnabled", FluidCompactCompatConfig.CREATE_ENABLED, installed))
+                .option(toggle("createExclude", FluidCompactCompatConfig.CREATE_EXCLUDE_BLOCKS, installed))
+                .build();
+    }
+
+    private static OptionGroup buildAutoBalancedGroup() {
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.auto_balanced"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.auto_balanced.desc")))
+                .option(toggle("autoBalancedEnabled", FluidCompactCompatConfig.AUTO_BALANCED_ENABLED, true))
+                .option(toggle("autoBalancedFollowFf", FluidCompactCompatConfig.AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS, true))
+                .option(slider("autoBalancedTarget", FluidCompactCompatConfig.AUTO_BALANCED_TARGET_MSPT, 10, 100, 1, true))
+                .option(slider("autoBalancedMaxSlowdown", FluidCompactCompatConfig.AUTO_BALANCED_MAX_SLOWDOWN, 1, 32, 1, true))
                 .build();
     }
 
