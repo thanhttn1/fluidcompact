@@ -2,7 +2,16 @@
 
 Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small update or fix.
 
-## 1.1.1 - latest
+## 1.2.0
+
+* New: Create is checked at startup. Flowing Fluids already supports Create by itself, so FluidCompact adds no Create hooks;
+  it keeps its pipe features away from Create's blocks and warns when Flowing Fluids' Create settings contradict finite water.
+* New: Auto Balanced Compact (enabled by default). While the server lags, FluidCompact stretches the intervals of its own
+  optional housekeeping. It follows Flowing Fluids' own tick-time target and never touches the finite-water logic.
+* Optimisation: idle Liquid Hoppers allocate nothing per call and no longer touch the saved data of their chunk.
+* Cleanup: one pipe matcher instead of two identical copies.
+
+## 1.1.1
 
 * Liquid Hopper can now also drain the thin leftover water of a pond (partial levels that PneumaticCraft cannot pick up).
 * New on/off button in the Liquid Hopper screen, per hopper.
