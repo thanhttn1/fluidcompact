@@ -6,7 +6,7 @@ Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small upda
 
 * **New: Alex's Caves.** The Drain now works with Flowing Fluids. When a Valve (or any redstone signal) opens it, the Drain
   takes fluid from above and puts exactly the same amount below, level by level, so no water is created or destroyed.
-  The Copper Valve itself needs no hook: it only sends the redstone signal.
+  The Valve itself needs no hook: it only sends the redstone signal.
 * New config section `alexscaves_drain` (speed, interval, sideways spread, effects) and a matching group in "Mod Compact List".
 * If the Drain has nowhere to put the fluid, it waits instead of deleting it.
 
