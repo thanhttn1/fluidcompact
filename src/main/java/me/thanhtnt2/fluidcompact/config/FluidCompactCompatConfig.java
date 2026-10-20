@@ -40,6 +40,14 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.IntValue SEAWATER_MIN_TICKS_BETWEEN_INTAKES;
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
+    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_ENABLED;
+    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS;
+    public static final ModConfigSpec.IntValue AUTO_BALANCED_TARGET_MSPT;
+    public static final ModConfigSpec.IntValue AUTO_BALANCED_MAX_SLOWDOWN;
+
+    public static final ModConfigSpec.BooleanValue CREATE_ENABLED;
+    public static final ModConfigSpec.BooleanValue CREATE_EXCLUDE_BLOCKS;
+
     public static final ModConfigSpec.BooleanValue PNC_PICKUP_ENABLED;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WATER;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WITHOUT_UPGRADE;
@@ -87,6 +95,35 @@ public final class FluidCompactCompatConfig {
         LOG_VERBOSE_THROTTLE_MS = BUILDER
                 .comment("Minimum milliseconds between two verbose lines about the same machine.")
                 .defineInRange("verboseThrottleMillis", 1000, 0, 600000);
+        BUILDER.pop();
+
+        BUILDER.push("auto_balanced");
+        AUTO_BALANCED_ENABLED = BUILDER
+                .comment("AUTO BALANCED COMPACT: when the server is slower than its target, FluidCompact stretches the intervals of its own",
+                        "optional periodic work (pipe cleanup, idle hopper checks) instead of adding to the lag. It never touches the",
+                        "finite-water logic and never changes Flowing Fluids or Create settings.")
+                .define("enabled", true);
+        AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS = BUILDER
+                .comment("Use Flowing Fluids' own tick-time target (50 ms x its autoPerformanceMSPTargetMultiplier) while its auto performance",
+                        "is not OFF, so both mods call the server 'slow' at the same moment.")
+                .define("followFlowingFluidsTarget", true);
+        AUTO_BALANCED_TARGET_MSPT = BUILDER
+                .comment("Average milliseconds per tick above which FluidCompact slows down its optional work (used when the option above does not apply).")
+                .defineInRange("targetMillisPerTick", 45, 10, 100);
+        AUTO_BALANCED_MAX_SLOWDOWN = BUILDER
+                .comment("Largest factor the optional intervals are multiplied by while the server is slow. 1 = never slow down.")
+                .defineInRange("maxSlowdown", 8, 1, 32);
+        BUILDER.pop();
+
+        BUILDER.push("create");
+        CREATE_ENABLED = BUILDER
+                .comment("Create is supported by Flowing Fluids itself (see create_* in flowing_fluids.json). FluidCompact adds no Create hooks;",
+                        "when this is true it only checks the combination at startup and writes the result to logs/fluidcompact.log.")
+                .define("enabled", true);
+        CREATE_EXCLUDE_BLOCKS = BUILDER
+                .comment("Keep Create's blocks out of FluidCompact's pipe features (non-displacers, pipe cleanup) so nothing overlaps with what",
+                        "Flowing Fluids already does for Create.")
+                .define("excludeCreateBlocks", true);
         BUILDER.pop();
 
         BUILDER.push("mekanism_electric_pump");

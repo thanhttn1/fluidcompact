@@ -6,6 +6,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import me.thanhtnt2.fluidcompact.balance.AutoBalance;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.core.BlockPos;
@@ -46,7 +47,9 @@ final class OrphanPipeWaterJanitor {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
         }
-        if (level.getGameTime() % FluidCompactCompatConfig.FF_PIPES_CLEANUP_INTERVAL_TICKS.get() != 0L) {
+        // Auto Balanced Compact: the cleanup is optional housekeeping, so it waits longer while the server lags
+        int interval = AutoBalance.scaleTicks(level.getServer(), FluidCompactCompatConfig.FF_PIPES_CLEANUP_INTERVAL_TICKS.get());
+        if (level.getGameTime() % interval != 0L) {
             return;
         }
         try {

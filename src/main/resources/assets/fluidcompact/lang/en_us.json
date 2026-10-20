@@ -130,5 +130,21 @@
   "fluidcompact.option.pncEmptyRetry": "Retry Delay When Empty (ticks)",
   "fluidcompact.option.pncEmptyRetry.desc": "After finding no water a hopper waits this long before looking again. Higher = less work.",
   "fluidcompact.option.pncGuiButton": "Show Button In Hopper Screen",
-  "fluidcompact.option.pncGuiButton.desc": "Shows the FluidCompact on/off button in the Liquid Hopper screen (client setting)."
+  "fluidcompact.option.pncGuiButton.desc": "Shows the FluidCompact on/off button in the Liquid Hopper screen (client setting).",
+  "fluidcompact.group.create": "Create (handled by Flowing Fluids)",
+  "fluidcompact.group.create.desc": "Flowing Fluids supports Create by itself. FluidCompact adds no Create hooks: it checks the combination at startup and keeps its pipe features away from Create's blocks.",
+  "fluidcompact.option.createEnabled": "Check Create Combination",
+  "fluidcompact.option.createEnabled.desc": "Writes a startup report about Create + Flowing Fluids to logs/fluidcompact.log and warns about settings that contradict finite water. Changes nothing in the game.",
+  "fluidcompact.option.createExclude": "Keep Create Blocks Out",
+  "fluidcompact.option.createExclude.desc": "FluidCompact's pipe features (non-displacers, pipe cleanup) skip Create's blocks so nothing overlaps with Flowing Fluids' own Create support.",
+  "fluidcompact.group.auto_balanced": "Auto Balanced Compact",
+  "fluidcompact.group.auto_balanced.desc": "When the server lags, FluidCompact stretches the intervals of its own optional housekeeping instead of adding load. It never delays the finite-water logic and never changes Flowing Fluids or Create settings.",
+  "fluidcompact.option.autoBalancedEnabled": "Enabled",
+  "fluidcompact.option.autoBalancedEnabled.desc": "Turn the automatic slowdown of FluidCompact's optional work on or off.",
+  "fluidcompact.option.autoBalancedFollowFf": "Follow Flowing Fluids' Target",
+  "fluidcompact.option.autoBalancedFollowFf.desc": "Use Flowing Fluids' own tick-time target while its auto performance is not OFF, so both mods agree on when the server is slow.",
+  "fluidcompact.option.autoBalancedTarget": "Target Milliseconds Per Tick",
+  "fluidcompact.option.autoBalancedTarget.desc": "Average tick time above which FluidCompact backs off (used when it does not follow Flowing Fluids).",
+  "fluidcompact.option.autoBalancedMaxSlowdown": "Maximum Slowdown",
+  "fluidcompact.option.autoBalancedMaxSlowdown.desc": "Largest factor optional intervals are multiplied by while the server is slow. 1 = never slow down."
 }

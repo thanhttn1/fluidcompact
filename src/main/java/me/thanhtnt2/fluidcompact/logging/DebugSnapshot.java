@@ -61,6 +61,11 @@ public final class DebugSnapshot {
         FluidCompactLog.info("config[mekanism_elements_seawater_pump] enabled={} drainPercent={} minTicks={} shortfall={}",
                 FluidCompactCompatConfig.SEAWATER_PUMP_ENABLED.get(), FluidCompactCompatConfig.SEAWATER_DRAIN_PERCENT.get(),
                 FluidCompactCompatConfig.SEAWATER_MIN_TICKS_BETWEEN_INTAKES.get(), FluidCompactCompatConfig.SEAWATER_SHORTFALL.get());
+        FluidCompactLog.info("config[auto_balanced] enabled={} followFlowingFluids={} targetMs={} maxSlowdown={}",
+                FluidCompactCompatConfig.AUTO_BALANCED_ENABLED.get(), FluidCompactCompatConfig.AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS.get(),
+                FluidCompactCompatConfig.AUTO_BALANCED_TARGET_MSPT.get(), FluidCompactCompatConfig.AUTO_BALANCED_MAX_SLOWDOWN.get());
+        FluidCompactLog.info("config[create] enabled={} excludeCreateBlocks={}",
+                FluidCompactCompatConfig.CREATE_ENABLED.get(), FluidCompactCompatConfig.CREATE_EXCLUDE_BLOCKS.get());
         FluidCompactLog.info("config[pneumaticcraft_pickup] enabled={} leftoverWater={} withoutUpgrade={} requireOutput={} retryTicks={} guiButton={}",
                 FluidCompactCompatConfig.PNC_PICKUP_ENABLED.get(), FluidCompactCompatConfig.PNC_LEFTOVER_WATER.get(),
                 FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get(), FluidCompactCompatConfig.PNC_REQUIRE_OUTPUT_CONTAINER.get(),

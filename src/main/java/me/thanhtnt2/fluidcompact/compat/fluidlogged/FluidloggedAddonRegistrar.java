@@ -5,6 +5,7 @@ import java.util.List;
 import de.leximon.fluidlogged.api.FluidloggedRegistries;
 import de.leximon.fluidlogged.config.Addon;
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
+import me.thanhtnt2.fluidcompact.compat.common.PipeBlockMatcher;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,8 +30,8 @@ final class FluidloggedAddonRegistrar {
     }
 
     static void register() {
-        List<Block> blocks = PassableBlockCollector.collectBlocks();
-        List<TagKey<Block>> tags = PassableBlockCollector.collectTags();
+        List<Block> blocks = PipeBlockMatcher.collectBlocks();
+        List<TagKey<Block>> tags = PipeBlockMatcher.collectTags();
 
         Addon.Builder addon = Addon.builder().enabledByDefault(true);
         if (FluidCompactCompatConfig.FLUIDLOGGED_FLUIDLOGGABLE.get()) {
