@@ -28,7 +28,7 @@ public final class PipeBlockMatcher {
         Set<String> classNames = new HashSet<>(FluidCompactCompatConfig.FLUIDLOGGED_BLOCK_CLASSES.get());
         Set<Block> matched = new LinkedHashSet<>();
         for (Block block : BuiltInRegistries.BLOCK) {
-            if (isInstanceOfAnyNamedClass(block.getClass(), classNames)) {
+            if (isInstanceOfAnyNamedClass(block.getClass(), classNames) && !ExternalHandledBlocks.isHandledElsewhere(block)) {
                 matched.add(block);
             }
         }
@@ -68,7 +68,7 @@ public final class PipeBlockMatcher {
         }
         ResourceLocation id = ResourceLocation.tryParse(entry.trim());
         if (id != null) {
-            BuiltInRegistries.BLOCK.getOptional(id).ifPresent(target::add);
+            BuiltInRegistries.BLOCK.getOptional(id).filter(block -> !ExternalHandledBlocks.isHandledElsewhere(block)).ifPresent(target::add);
         }
     }
 }
