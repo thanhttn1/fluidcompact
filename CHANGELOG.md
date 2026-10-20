@@ -2,6 +2,14 @@
 
 Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small update or fix.
 
+## 1.3.0
+
+* **New: Alex's Caves.** The Drain now works with Flowing Fluids. When a Copper Valve (or any redstone signal) opens it, the Drain
+  takes fluid from above and puts exactly the same amount below, level by level, so no water is created or destroyed.
+  The Copper Valve itself needs no hook: it only sends the redstone signal.
+* New config section `alexscaves_drain` (speed, interval, sideways spread, effects) and a matching group in "Mod Compact List".
+* If the Drain has nowhere to put the fluid, it waits instead of deleting it.
+
 ## 1.2.0
 
 * New: Create is checked at startup. Flowing Fluids already supports Create by itself, so FluidCompact adds no Create hooks;
