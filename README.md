@@ -14,6 +14,7 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 
 * **Modern Industrialization** Bronze, Steel and Electric Water Pumps stop creating water: every pumped
   millibucket is drained from the water source blocks around the pump.
+* **Alex's Caves** Drain (opened by a Copper Valve or redstone) moves finite fluid level by level instead of failing under Flowing Fluids.
 * **PneumaticCraft: Repressurized** Liquid Hopper and Gas Lift drain the world instead of duplicating water.
 * **Mekanism** Electric Pump and **Mekanism Elements** Seawater Pump drain the world too.
 * **Fluidlogged** support so fluid enters and flows through pipes and cables instead of breaking or blocking.
@@ -28,7 +29,7 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 
 * NeoForge 21.1.x, Minecraft 1.21.1
 * **Flowing Fluids 1.0.6 or newer (required)**
-* Optional: Modern Industrialization, Mekanism, Mekanism Elements, PneumaticCraft, Fluidlogged, Jade, JEI, YACL
+* Optional: Modern Industrialization, Mekanism, Mekanism Elements, Alex's Caves, PneumaticCraft, Fluidlogged, Jade, JEI, YACL
 
 ## Addon API (`me.thanhtnt2.fluidcompact.api`)
 

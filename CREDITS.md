@@ -21,6 +21,12 @@ What FluidCompact does with it, stated plainly:
 * All the fluid physics people enjoy are Traben's work. Support the original mod.
 * report Fluid Compact issues to me (via Github or Discord), please do not flood the author page.
 
+## Alex's Caves (Unofficial Port)
+
+* Alex's Caves (Unofficial Port, GPL-3.0) by Alexthe668, Noonyeyz, Raguto and contributors, ports included.
+* FluidCompact contains no Alex's Caves code or assets. It references the Drain block by class name at runtime and only
+  replaces what the Drain does when a finite fluid is involved; everything else (Copper Valve, redstone, sounds) stays original.
+
 ## Reporting bugs
 
 **Report every FluidCompact bug to me (thanhttn1), not to the author of Flowing Fluids or of any other mod.**
@@ -43,6 +49,7 @@ Licenses below are as declared in the mods' own metadata (versions we tested aga
 | Just Enough Items 19.x | mezz | MIT |
 | YetAnotherConfigLib 3.8.x | isXander | LGPL-3.0-or-later |
 | PneumaticCraft: Repressurized 8.2.x | desht, MineMaarten | GPL-3.0 |
+| Alex's Caves | Alexthe668, Noonyeyz, Raguto and contributors | GPL-3.0 |
 
 PneumaticCraft addons checked (no fluid mechanics to hook): PNC Ocean Addons (desht, LGPL-3.0), PNC Electrostatic Fix (JuiceyBeans, LGPL-3.0).
 FluidCompact copies no PneumaticCraft code and does not link against PneumaticCraft classes at compile time. At runtime it

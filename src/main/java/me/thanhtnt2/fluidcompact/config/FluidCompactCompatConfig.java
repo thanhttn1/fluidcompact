@@ -40,14 +40,6 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.IntValue SEAWATER_MIN_TICKS_BETWEEN_INTAKES;
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
-    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_ENABLED;
-    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS;
-    public static final ModConfigSpec.IntValue AUTO_BALANCED_TARGET_MSPT;
-    public static final ModConfigSpec.IntValue AUTO_BALANCED_MAX_SLOWDOWN;
-
-    public static final ModConfigSpec.BooleanValue CREATE_ENABLED;
-    public static final ModConfigSpec.BooleanValue CREATE_EXCLUDE_BLOCKS;
-
     public static final ModConfigSpec.BooleanValue PNC_PICKUP_ENABLED;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WATER;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WITHOUT_UPGRADE;
@@ -239,6 +231,25 @@ public final class FluidCompactCompatConfig {
         FF_PIPES_CLEANUP_CHUNK_RADIUS = BUILDER
                 .comment("Only pipes in loaded chunks within this many chunks of a player are cleaned. Lower = less work.")
                 .defineInRange("cleanupChunkRadius", 4, 1, 16);
+        BUILDER.pop();
+
+        BUILDER.push("alexscaves_drain");
+        ALEXS_DRAIN_ENABLED = BUILDER
+                .comment("Make the Alex's Caves Drain (switched on by a Copper Valve or any redstone signal) work with finite fluids.",
+                        "It then moves exactly the fluid it takes from above to the cavity below, level by level.")
+                .define("enabled", true);
+        ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE = BUILDER
+                .comment("Most fluid one Drain moves per cycle, in 1/8 bucket levels. 512 = 64 full blocks, the original Drain's limit.")
+                .defineInRange("maxLevelsPerCycle", 512, 8, 8192);
+        ALEXS_DRAIN_INTERVAL_TICKS = BUILDER
+                .comment("Ticks between two cycles of an open Drain. 20 is the original speed. Higher = less work.")
+                .defineInRange("intervalTicks", 20, 5, 200);
+        ALEXS_DRAIN_FILL_SPREAD = BUILDER
+                .comment("How many blocks sideways the released fluid may spread below the Drain. 10 is the original value.")
+                .defineInRange("fillSpread", 10, 1, 16);
+        ALEXS_DRAIN_WORLD_EFFECTS = BUILDER
+                .comment("Play Alex's Caves' own drain sound and bubbles while the Drain works.")
+                .define("worldEffects", true);
         BUILDER.pop();
 
         SPEC = BUILDER.build();

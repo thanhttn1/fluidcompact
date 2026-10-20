@@ -80,6 +80,7 @@ public final class YaclConfigScreenFactory {
                 .group(buildModernIndustrializationGroup())
                 .group(buildMekanismGroup())
                 .group(buildMekanismElementsGroup())
+                .group(buildAlexsCavesGroup())
                 .group(buildPneumaticCraftGroup())
                 .group(buildCreateGroup())
                 .group(buildAutoBalancedGroup())
@@ -156,6 +157,19 @@ public final class YaclConfigScreenFactory {
                 .option(slider("seawaterDrainPercent", FluidCompactCompatConfig.SEAWATER_DRAIN_PERCENT, 1, 1000, 5, installed))
                 .option(slider("seawaterMinTicks", FluidCompactCompatConfig.SEAWATER_MIN_TICKS_BETWEEN_INTAKES, 0, 6000, 20, installed))
                 .option(choice("seawaterShortfall", FluidCompactCompatConfig.SEAWATER_SHORTFALL, ShortfallBehavior.class, installed))
+                .build();
+    }
+
+    private static OptionGroup buildAlexsCavesGroup() {
+        boolean installed = isLoaded("alexscaves");
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.alexscaves"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.alexscaves.desc")))
+                .option(toggle("alexsDrainEnabled", FluidCompactCompatConfig.ALEXS_DRAIN_ENABLED, installed))
+                .option(slider("alexsDrainMaxLevels", FluidCompactCompatConfig.ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE, 8, 8192, 8, installed))
+                .option(slider("alexsDrainInterval", FluidCompactCompatConfig.ALEXS_DRAIN_INTERVAL_TICKS, 5, 200, 5, installed))
+                .option(slider("alexsDrainSpread", FluidCompactCompatConfig.ALEXS_DRAIN_FILL_SPREAD, 1, 16, 1, installed))
+                .option(toggle("alexsDrainEffects", FluidCompactCompatConfig.ALEXS_DRAIN_WORLD_EFFECTS, installed))
                 .build();
     }
 
