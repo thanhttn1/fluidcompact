@@ -1,0 +1,206 @@
+package me.thanhtnt2.fluidcompact.compat.alexscaves;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import me.thanhtnt2.fluidcompact.api.FiniteFluidService;
+import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
+import me.thanhtnt2.fluidcompact.api.FluidIntakeRequest;
+import me.thanhtnt2.fluidcompact.api.FluidIntakeResult;
+import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
+import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+
+/**
+ * Bridges the Alex's Caves Drain to the finite-fluid service.
+ *
+ * <p>Fix summary (Drain never pulled water with Flowing Fluids installed):
+ * <ol>
+ *   <li>The Copper Valve normally sits in the cell directly above the Drain. FluidCompact sets the Flowing Fluids
+ *       waterlog flow mode to IGNORE, so a valve that is not waterlogged at placement time (or that was drained
+ *       once) can never receive water again. The old code only looked at that one cell, so it saw "no fluid above"
+ *       and stopped for good. We now also probe the cells touching a dry, waterloggable block.</li>
+ *   <li>The valve cell is no longer used as a drain source, because emptying it un-waterlogs the valve permanently.</li>
+ *   <li>Every silent no-op now leaves a throttled debug line so the blocking condition is visible in the log.</li>
+ * </ol>
+ */
+public final class AlexsCavesDrainBridge {
+    private static final ResourceLocation FALLBACK_MACHINE_ID = ResourceLocation.fromNamespaceAndPath("fluidcompact", "unknown_drain");
+
+    // Probe order next to a dry valve: the lake surface above first, then the four sides.
+    private static final Direction[] VALVE_PROBE_DIRECTIONS = {Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
+    private AlexsCavesDrainBridge() {
+    }
+
+    /** Where the drain starts pulling from, and which fluid it found there. */
+    private record FluidSource(BlockPos origin, FlowingFluid fluid) {
+    }
+
+    public static boolean tryHandle(BlockState drainState, Level level, BlockPos drainPos) {
+        try {
+            return handle(drainState, level, drainPos);
+        } catch (RuntimeException exception) {
+            FluidCompactLog.error("Alex's Caves Drain hook failed at " + drainPos.toShortString(), exception);
+            return false;
+        }
+    }
+
+    private static boolean handle(BlockState drainState, Level level, BlockPos drainPos) {
+        if (!(level instanceof ServerLevel serverLevel) || !FluidCompactApi.isReady()) {
+            return false;
+        }
+        if (!FluidCompactCompatConfig.ALEXS_DRAIN_ENABLED.get()) {
+            return false;
+        }
+
+        Optional<FluidSource> located = locateFluidSource(serverLevel, drainPos);
+        if (located.isEmpty()) {
+            logThrottled(drainPos, "no fluid above the Drain or beside the valve above it; leaving the original logic in charge");
+            return false;
+        }
+
+        FluidSource source = located.get();
+        FiniteFluidService service = FluidCompactApi.service();
+        if (!service.isFinite(source.fluid())) {
+            return false;
+        }
+
+        DrainFillPlan plan = DrainFillPlan.create(
+                serverLevel,
+                drainPos,
+                source.fluid(),
+                FluidCompactCompatConfig.ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE.get(),
+                FluidCompactCompatConfig.ALEXS_DRAIN_FILL_SPREAD.get()
+        );
+        if (plan.isEmpty()) {
+            // The Drain needs air or not-yet-full fluid directly below it, exactly like the original block.
+            logThrottled(drainPos, "no room below the Drain (block below: " + describeBlockBelow(serverLevel, drainPos) + "); nothing to move");
+            scheduleNextCycle(serverLevel, drainPos, drainState);
+            return true;
+        }
+
+        FluidIntakeResult result = service.requestIntake(buildRequest(serverLevel, drainState, drainPos, source, plan));
+        if (!result.managed()) {
+            return false;
+        }
+
+        moveFluid(serverLevel, drainPos, source.fluid(), plan, result);
+        scheduleNextCycle(serverLevel, drainPos, drainState);
+        return true;
+    }
+
+    /**
+     * Finds the fluid this Drain should pull from.
+     * The cell above the Drain is checked first. If it holds no fluid but contains a waterloggable block (the Copper
+     * Valve), the cells touching it are probed instead, because that block cannot be refilled under the IGNORE waterlog mode.
+     */
+    private static Optional<FluidSource> locateFluidSource(ServerLevel level, BlockPos drainPos) {
+        BlockPos above = drainPos.above();
+        Optional<FluidSource> direct = readFluidSource(level, above);
+        if (direct.isPresent()) {
+            return direct;
+        }
+        if (!(level.getBlockState(above).getBlock() instanceof SimpleWaterloggedBlock)) {
+            return Optional.empty();
+        }
+
+        for (Direction direction : VALVE_PROBE_DIRECTIONS) {
+            Optional<FluidSource> neighbour = readFluidSource(level, above.relative(direction));
+            if (neighbour.isPresent()) {
+                return neighbour;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<FluidSource> readFluidSource(ServerLevel level, BlockPos pos) {
+        FluidState fluidState = level.getFluidState(pos);
+        if (fluidState.isEmpty() || !(fluidState.getType() instanceof FlowingFluid flowingFluid)) {
+            return Optional.empty();
+        }
+        return Optional.of(new FluidSource(pos.immutable(), flowingFluid));
+    }
+
+    private static FluidIntakeRequest buildRequest(ServerLevel level, BlockState drainState, BlockPos drainPos, FluidSource source, DrainFillPlan plan) {
+        return new FluidIntakeRequest(
+                level, drainPos, machineIdOf(drainState), source.fluid(), plan.totalLevels(), collectSourcePositions(level, source)
+        );
+    }
+
+    private static List<BlockPos> collectSourcePositions(ServerLevel level, FluidSource source) {
+        MutableBlockPos cursor = source.origin().mutable();
+
+        // Climb to the surface so Flowing Fluids drains the top of the body of water first.
+        while (cursor.getY() < level.getMaxBuildHeight() - 1 && !level.getFluidState(cursor.above()).isEmpty()) {
+            cursor.move(0, 1, 0);
+        }
+
+        List<BlockPos> sources = new ArrayList<>(2);
+        sources.add(cursor.immutable());
+
+        // Keep the origin as a fallback only when it is a plain fluid cell; a waterlogged block would lose its water for good.
+        boolean originIsPlainFluid = level.getBlockState(source.origin()).getBlock() instanceof LiquidBlock;
+        if (originIsPlainFluid && !source.origin().equals(cursor)) {
+            sources.add(source.origin());
+        }
+        return sources;
+    }
+
+    private static void moveFluid(ServerLevel level, BlockPos drainPos, FlowingFluid fluid, DrainFillPlan plan, FluidIntakeResult result) {
+        int drainedLevels = result.drainedLevels();
+        if (drainedLevels <= 0) {
+            logThrottled(drainPos, "the finite-fluid backend removed 0 level(s) from the source column; nothing was moved");
+            return;
+        }
+
+        boolean playEffects = FluidCompactCompatConfig.ALEXS_DRAIN_WORLD_EFFECTS.get();
+        if (playEffects) {
+            DrainWorldEffects.play(DrainWorldEffects.FLUID_TAKEN, drainPos);
+        }
+
+        int placedLevels = plan.apply(level, fluid, drainedLevels);
+        if (playEffects && placedLevels > 0) {
+            DrainWorldEffects.play(DrainWorldEffects.FLUID_RELEASED, drainPos);
+        }
+
+        FluidCompactLog.debugThrottled(
+                "alexscaves-drain-" + drainPos.asLong(),
+                "[alexscaves] Drain at {} moved {} level(s): drained={} placed={}",
+                drainPos.toShortString(),
+                result.requestedLevels(),
+                drainedLevels,
+                placedLevels
+        );
+    }
+
+    private static void scheduleNextCycle(ServerLevel level, BlockPos drainPos, BlockState drainState) {
+        level.scheduleTick(drainPos, drainState.getBlock(), FluidCompactCompatConfig.ALEXS_DRAIN_INTERVAL_TICKS.get());
+    }
+
+    private static String describeBlockBelow(ServerLevel level, BlockPos drainPos) {
+        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(level.getBlockState(drainPos.below()).getBlock());
+        return key != null ? key.toString() : "unknown";
+    }
+
+    private static void logThrottled(BlockPos drainPos, String reason) {
+        FluidCompactLog.debugThrottled("alexscaves-drain-skip-" + drainPos.asLong(), "[alexscaves] Drain at {}: {}", drainPos.toShortString(), reason);
+    }
+
+    private static ResourceLocation machineIdOf(BlockState drainState) {
+        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(drainState.getBlock());
+        return key != null ? key : FALLBACK_MACHINE_ID;
+    }
+}
