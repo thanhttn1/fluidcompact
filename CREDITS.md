@@ -21,9 +21,9 @@ What FluidCompact does with it, stated plainly:
 * All the fluid physics people enjoy are Traben's work. Support the original mod.
 * report Fluid Compact issues to me (via Github or Discord), please do not flood the author page.
 
-## Alex's Caves
+## Alex's Caves (Unofficial Port)
 
-* Alex's Caves (GPL-3.0) by Alexthe668, Noonyeyz, Raguto and contributors, ports included.
+* Alex's Caves (Unofficial Port, GPL-3.0) by Alexthe668, Noonyeyz, Raguto and contributors, ports included.
 * FluidCompact contains no Alex's Caves code or assets. It references the Drain block by class name at runtime and only
   replaces what the Drain does when a finite fluid is involved; everything else (Copper Valve, redstone, sounds) stays original.
 
