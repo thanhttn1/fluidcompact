@@ -1,11 +1,13 @@
 package me.thanhtnt2.fluidcompact.compat.pneumaticcraft;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import me.thanhtnt2.fluidcompact.api.FiniteFluidService;
+import me.thanhtnt2.fluidcompact.balance.AutoBalance;
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
 import me.thanhtnt2.fluidcompact.api.FluidIntakeRequest;
 import me.thanhtnt2.fluidcompact.api.FluidIntakeResult;
@@ -36,7 +38,23 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
  */
 public final class PneumaticHopperPuller {
 
-    private static final Map<String, Method> DIRECTION_GETTERS = new ConcurrentHashMap<>();
+    // Looked up once per hopper class, so an idle hopper allocates nothing and builds no strings on every call
+    private static final ClassValue<Method> INPUT_GETTER = new ClassValue<>() {
+        @Override
+        protected Method computeValue(Class<?> type) {
+            return findPublicGetter(type, "getInputDirection");
+        }
+    };
+    private static final ClassValue<Method> OUTPUT_GETTER = new ClassValue<>() {
+        @Override
+        protected Method computeValue(Class<?> type) {
+            return findPublicGetter(type, "getRotation");
+        }
+    };
+
+    // "Look again at game time X" for idle hoppers. Weak keys: a hopper that unloads is simply forgotten.
+    // Deliberately not saved with the block entity, so an idle hopper never marks its chunk as changed.
+    private static final Map<BlockEntity, Long> IDLE_UNTIL = Collections.synchronizedMap(new WeakHashMap<>());
 
     private PneumaticHopperPuller() {
     }
@@ -62,11 +80,13 @@ public final class PneumaticHopperPuller {
             return false;
         }
         HopperPullSettings settings = hopper.getData(PneumaticAttachments.HOPPER_PULL_SETTINGS.get());
-        if (!settings.enabled() || level.getGameTime() < settings.nextAttemptGameTime()) {
+        long now = level.getGameTime();
+        Long idleUntil = IDLE_UNTIL.get(hopper);
+        if (!settings.enabled() || now < settings.nextAttemptGameTime() || (idleUntil != null && now < idleUntil)) {
             return false;
         }
-        Direction input = directionOf(hopper, "getInputDirection");
-        Direction output = directionOf(hopper, "getRotation");
+        Direction input = directionOf(INPUT_GETTER.get(hopper.getClass()), hopper);
+        Direction output = directionOf(OUTPUT_GETTER.get(hopper.getClass()), hopper);
         if (input == null || output == null) {
             return false;
         }
@@ -74,7 +94,12 @@ public final class PneumaticHopperPuller {
         BlockPos inputPos = hopperPos.relative(input);
         int leftoverLevels = leftoverLevelsAt(level, inputPos);
         boolean hasUpgrade = PneumaticPickupBridge.pickupWasAttempted(level, inputPos);
-        if (leftoverLevels <= 0 || !(hasUpgrade || FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get())) {
+        if (leftoverLevels <= 0) {
+            // The common case for a hopper: nothing to drain here. Check again in a moment, not on every call.
+            idleFor(level, hopper);
+            return false;
+        }
+        if (!(hasUpgrade || FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get())) {
             return false;
         }
         FiniteFluidService service = FluidCompactApi.service();
@@ -96,6 +121,11 @@ public final class PneumaticHopperPuller {
         return drainInto(level, hopper, settings, hopperTank, inputPos, levels);
     }
 
+    private static void idleFor(ServerLevel level, BlockEntity hopper) {
+        int waitTicks = AutoBalance.scaleTicks(level.getServer(), FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS.get());
+        IDLE_UNTIL.put(hopper, level.getGameTime() + waitTicks);
+    }
+
     private static boolean drainInto(ServerLevel level, BlockEntity hopper, HopperPullSettings settings,
             IFluidHandler hopperTank, BlockPos inputPos, int levels) {
         ResourceLocation machineId = BuiltInRegistries.BLOCK.getKey(hopper.getBlockState().getBlock());
@@ -107,8 +137,7 @@ public final class PneumaticHopperPuller {
         }
         if (result.drainedLevels() <= 0) {
             // Nothing left to take: stay quiet for a while instead of asking every tick
-            long retryAt = level.getGameTime() + FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS.get();
-            hopper.setData(PneumaticAttachments.HOPPER_PULL_SETTINGS.get(), settings.withNextAttempt(retryAt));
+            idleFor(level, hopper);
             return false;
         }
         int millibuckets = result.drainedLevels() * FluidCompactApi.MILLIBUCKETS_PER_LEVEL;
@@ -153,10 +182,8 @@ public final class PneumaticHopperPuller {
                 && container.fill(new FluidStack(Fluids.WATER, FluidCompactApi.MILLIBUCKETS_PER_LEVEL), IFluidHandler.FluidAction.SIMULATE) > 0;
     }
 
-    private static Direction directionOf(BlockEntity hopper, String getterName) {
+    private static Direction directionOf(Method getter, BlockEntity hopper) {
         try {
-            Method getter = DIRECTION_GETTERS.computeIfAbsent(hopper.getClass().getName() + "#" + getterName,
-                    key -> findPublicGetter(hopper.getClass(), getterName));
             return getter == null ? null : (Direction) getter.invoke(hopper);
         } catch (ReflectiveOperationException | ClassCastException exception) {
             return null;
