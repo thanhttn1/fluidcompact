@@ -4,7 +4,7 @@ Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small upda
 
 ## 1.3.2
 
-# This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond. Rest assured, all planned compatibility updates mods will proceed as scheduled.
+#### This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond. Rest assured, all planned compatibility updates mods will proceed as scheduled.
 
 * Fix: Modern Industrialization water pumps now also take the thin, non-source water layers Flowing Fluids leaves
   behind, so a pond can be drained to the last level. Before, such a layer made the pump run without producing water.
