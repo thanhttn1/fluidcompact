@@ -2,11 +2,26 @@
 
 Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small update or fix.
 
+## 1.3.1
+
+* Fix: the Modern Industrialization pump hook now fails open like every other hook. An error inside it (for example a
+  listener of another mod) is logged once a minute and the pump keeps running, instead of crashing the server with
+  "Ticking block entity".
+* Optimisation: the waterlogged-pipe cleanup no longer scans every chunk around the players in a single tick. The
+  chunk list is worked off a few chunks per tick (same interval, same result), and almost every tick now exits at once.
+* Optimisation: Liquid Hoppers that nobody configured no longer get a saved FluidCompact data attachment just by
+  running the leftover-water check.
+* Optimisation: the intake log and the Alex's Caves Drain build no log text while verbose/debug logging is off, and the
+  verbose-log throttle table forgets machines whose window has passed.
+* Alex's Caves: a Drain above an already full tank no longer re-checks the whole tank every cycle.
+* Hardening: the PneumaticCraft pickup hook is switched off with a warning (instead of answering wrongly) if a future
+  PneumaticCraft reads more than one config flag in that method.
+
 ## 1.3.0
 
-* **New: Alex's Caves.** The Drain now works with Flowing Fluids. When a Valve (or any redstone signal) opens it, the Drain
+* **New: Alex's Caves.** The Drain now works with Flowing Fluids. When a Copper Valve (or any redstone signal) opens it, the Drain
   takes fluid from above and puts exactly the same amount below, level by level, so no water is created or destroyed.
-  The Valve itself needs no hook: it only sends the redstone signal.
+  The Copper Valve itself needs no hook: it only sends the redstone signal.
 * New config section `alexscaves_drain` (speed, interval, sideways spread, effects) and a matching group in "Mod Compact List".
 * If the Drain has nowhere to put the fluid, it waits instead of deleting it.
 
