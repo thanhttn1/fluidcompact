@@ -8,6 +8,7 @@ import me.thanhtnt2.fluidcompact.api.FiniteFluidService;
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
 import me.thanhtnt2.fluidcompact.api.FluidIntakeRequest;
 import me.thanhtnt2.fluidcompact.api.FluidIntakeResult;
+import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.config.FluidCompactConfig;
 import me.thanhtnt2.fluidcompact.core.FluidCompactAttachments;
 import me.thanhtnt2.fluidcompact.core.PumpStatistics;
@@ -37,10 +38,6 @@ public final class MiPumpBridge {
 
     private static final Fluid PUMPED_FLUID = Fluids.WATER;
 
-    // A failure here repeats on every pump tick, so the full report is limited to one per minute
-    private static final long FAILURE_REPORT_INTERVAL_MILLIS = 60_000L;
-    private static volatile long lastFailureReportMillis;
-
     private MiPumpBridge() {
     }
 
@@ -58,19 +55,10 @@ public final class MiPumpBridge {
         } catch (RuntimeException | LinkageError error) {
             // Fail open like every other bridge: a broken hook (for example an addon listener that throws,
             // or a Flowing Fluids API change) must never turn into a "ticking block entity" crash
-            reportFailure(pump, error);
+            FluidCompactLog.errorThrottled("mi-water-pump", "Modern Industrialization pump hook failed at "
+                    + pump.getBlockPos().toShortString() + "; the pump runs unlimited until this is fixed", error);
             return requestedMillibuckets;
         }
-    }
-
-    private static void reportFailure(BlockEntity pump, Throwable error) {
-        long now = System.currentTimeMillis();
-        if (now - lastFailureReportMillis < FAILURE_REPORT_INTERVAL_MILLIS) {
-            return;
-        }
-        lastFailureReportMillis = now;
-        FluidCompactLog.error("Modern Industrialization pump hook failed at " + pump.getBlockPos().toShortString()
-                + "; the pump runs unlimited until this is fixed (repeats are hidden for a minute)", error);
     }
 
     private static long limitInsideLevel(BlockEntity pump, long requestedMillibuckets) {
@@ -105,14 +93,34 @@ public final class MiPumpBridge {
                 level, pumpPos, machineIdOf(pump), PUMPED_FLUID, levelsToDrain, findSourcePositions(level, pumpPos));
     }
 
+    /**
+     * True for a thin water layer (not a source block) that the pump should treat as one water cell.
+     * Called from the pump mixin on the server thread every pump cycle, so it stays cheap and never throws.
+     */
+    public static boolean isThinPumpableWater(FluidState fluidState) {
+        if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(PUMPED_FLUID)) {
+            return false;
+        }
+        return FluidCompactApi.isReady()
+                && FluidCompactCompatConfig.MI_PUMP_DRAIN_THIN_WATER.get()
+                && FluidCompactApi.service().isFinite(PUMPED_FLUID);
+    }
+
+    private static boolean isPumpableCell(FluidState fluidState) {
+        if (!fluidState.getType().isSame(PUMPED_FLUID)) {
+            return false;
+        }
+        return fluidState.isSource() || isThinPumpableWater(fluidState);
+    }
+
     private static List<BlockPos> findSourcePositions(ServerLevel level, BlockPos pumpPos) {
         List<BlockPos> sources = new ArrayList<>(RING_DX.length);
-        // One reusable cursor: an immutable position is only created for the few blocks that really are sources
+        // One reusable cursor: an immutable position is only created for the few cells that really hold pumpable water
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int index = 0; index < RING_DX.length; index++) {
             cursor.set(pumpPos.getX() + RING_DX[index], pumpPos.getY(), pumpPos.getZ() + RING_DZ[index]);
             FluidState fluidState = level.getFluidState(cursor);
-            if (fluidState.isSource() && fluidState.getType().isSame(PUMPED_FLUID)) {
+            if (isPumpableCell(fluidState)) {
                 sources.add(cursor.immutable());
             }
         }

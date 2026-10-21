@@ -41,9 +41,10 @@ public final class SeawaterPumpBridge {
     public static FluidStack chargeWorld(BlockEntity pump, FluidStack producedSeawater) {
         try {
             return charge(pump, producedSeawater);
-        } catch (RuntimeException exception) {
+        } catch (RuntimeException | LinkageError error) {
             // Fail open: a broken hook must never stop the pump from working
-            FluidCompactLog.error("Seawater pump hook failed at " + pump.getBlockPos().toShortString(), exception);
+            FluidCompactLog.errorThrottled("seawater-pump",
+                    "Seawater pump hook failed at " + pump.getBlockPos().toShortString(), error);
             return producedSeawater;
         }
     }

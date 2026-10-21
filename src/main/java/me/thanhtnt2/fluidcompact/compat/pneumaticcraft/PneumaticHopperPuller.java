@@ -71,7 +71,8 @@ public final class PneumaticHopperPuller {
         try {
             return pull(level, hopper, rateUnits);
         } catch (RuntimeException | LinkageError error) {
-            FluidCompactLog.error("Liquid Hopper leftover water pull failed at " + hopper.getBlockPos().toShortString(), error);
+            FluidCompactLog.errorThrottled("pneumaticcraft-hopper-pull",
+                    "Liquid Hopper leftover water pull failed at " + hopper.getBlockPos().toShortString(), error);
             return false;
         }
     }
@@ -101,7 +102,7 @@ public final class PneumaticHopperPuller {
             return false;
         }
         if (!(hasUpgrade || FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get())) {
-            return false;
+            return skip(hopper, "no Dispenser Upgrade and liquidHopperLeftoverWithoutUpgrade is off");
         }
         FiniteFluidService service = FluidCompactApi.service();
         if (!service.isFinite(Fluids.WATER)) {
@@ -109,17 +110,30 @@ public final class PneumaticHopperPuller {
         }
         IFluidHandler hopperTank = level.getCapability(Capabilities.FluidHandler.BLOCK, hopperPos, input);
         if (hopperTank == null) {
-            return false;
+            return skip(hopper, "the hopper exposes no tank on its input side");
         }
         int levels = levelsTheTankAccepts(hopperTank, rateUnits);
         if (!hasUpgrade) {
             // Without the upgrade the hopper only gets the thin leftover, never more than the input cell holds
             levels = Math.min(levels, leftoverLevels);
         }
-        if (levels <= 0 || !hasConnectedOutput(level, hopperPos, output)) {
-            return false;
+        if (levels <= 0) {
+            return skip(hopper, "the hopper tank is full");
+        }
+        if (!hasConnectedOutput(level, hopperPos, output)) {
+            return skip(hopper, "liquidHopperLeftoverNeedsOutput is on and nothing on the output side accepts water");
         }
         return drainInto(level, hopper, settings, hopperTank, inputPos, levels);
+    }
+
+    // Says why a hopper that found leftover water did nothing; written only while verbose/debug logging is on
+    private static boolean skip(BlockEntity hopper, String reason) {
+        if (FluidCompactLog.isDetailLoggingActive()) {
+            FluidCompactLog.debugThrottled("pnc-skip-" + hopper.getBlockPos().asLong(),
+                    "[pneumaticcraft] Liquid Hopper at {} skipped the leftover pull: {}",
+                    hopper.getBlockPos().toShortString(), reason);
+        }
+        return false;
     }
 
     // getData would attach (and later save) a default value on every hopper that merely runs this check,
@@ -135,7 +149,7 @@ public final class PneumaticHopperPuller {
     }
 
     private static boolean drainInto(ServerLevel level, BlockEntity hopper, HopperPullSettings settings,
-                                     IFluidHandler hopperTank, BlockPos inputPos, int levels) {
+            IFluidHandler hopperTank, BlockPos inputPos, int levels) {
         ResourceLocation machineId = BuiltInRegistries.BLOCK.getKey(hopper.getBlockState().getBlock());
         FluidIntakeRequest request = new FluidIntakeRequest(
                 level, hopper.getBlockPos(), machineId, Fluids.WATER, levels, List.of(inputPos));
@@ -181,7 +195,8 @@ public final class PneumaticHopperPuller {
     }
 
     private static boolean hasConnectedOutput(ServerLevel level, BlockPos hopperPos, Direction output) {
-        if (!FluidCompactCompatConfig.PNC_REQUIRE_OUTPUT_CONTAINER.get()) {
+        // Only the new key counts: the old requireOutputContainer defaulted to true and silently blocked hoppers without an output
+        if (!FluidCompactCompatConfig.PNC_LEFTOVER_NEEDS_OUTPUT.get()) {
             return true;
         }
         IFluidHandler container = level.getCapability(

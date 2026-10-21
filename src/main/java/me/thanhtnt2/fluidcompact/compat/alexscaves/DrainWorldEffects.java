@@ -45,21 +45,30 @@ final class DrainWorldEffects {
         }
     }
 
-    private static synchronized boolean resolveHandles() {
+    private static boolean resolveHandles() {
         if (!resolved) {
-            resolved = true;
-            try {
-                MethodHandles.Lookup lookup = MethodHandles.publicLookup();
-                Class<?> messageClass = Class.forName(MESSAGE_CLASS);
-                Class<?> modClass = Class.forName(MOD_CLASS);
-                messageFactory = lookup.findConstructor(messageClass,
-                        MethodType.methodType(void.class, int.class, int.class, int.class, int.class));
-                broadcaster = lookup.findStatic(modClass, "sendMSGToAll",
-                        MethodType.methodType(void.class, CustomPacketPayload.class));
-            } catch (ReflectiveOperationException | LinkageError error) {
-                FluidCompactLog.warn("[alexscaves] Drain effects unavailable ({}); only the fluid logic is hooked", error.toString());
-            }
+            resolveOnce();
         }
+        // Plain volatile reads: no lock on the hot path once the lookup has run
         return messageFactory != null && broadcaster != null;
+    }
+
+    private static synchronized void resolveOnce() {
+        if (resolved) {
+            return;
+        }
+        try {
+            MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+            Class<?> messageClass = Class.forName(MESSAGE_CLASS);
+            Class<?> modClass = Class.forName(MOD_CLASS);
+            broadcaster = lookup.findStatic(modClass, "sendMSGToAll",
+                    MethodType.methodType(void.class, CustomPacketPayload.class));
+            messageFactory = lookup.findConstructor(messageClass,
+                    MethodType.methodType(void.class, int.class, int.class, int.class, int.class));
+        } catch (ReflectiveOperationException | LinkageError error) {
+            FluidCompactLog.warn("[alexscaves] Drain effects unavailable ({}); only the fluid logic is hooked", error.toString());
+        } finally {
+            resolved = true; // published last, so a reader that sees it also sees the handles
+        }
     }
 }

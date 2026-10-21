@@ -62,9 +62,9 @@ public final class PneumaticPickupBridge {
                         "PneumaticCraft pickup: infinite-water exemption switched off, the source block is removed");
             }
             return forced;
-        } catch (RuntimeException exception) {
+        } catch (RuntimeException | LinkageError error) {
             // Fail open: a broken hook must never stop PneumaticCraft's machines from working
-            FluidCompactLog.error("PneumaticCraft pickup hook failed", exception);
+            FluidCompactLog.errorThrottled("pneumaticcraft-pickup", "PneumaticCraft pickup hook failed", error);
             return false;
         }
     }

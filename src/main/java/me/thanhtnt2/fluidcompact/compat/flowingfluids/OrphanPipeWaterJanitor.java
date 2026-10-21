@@ -118,7 +118,9 @@ final class OrphanPipeWaterJanitor {
 
     private void cleanPendingChunks(ServerLevel level, LongArrayFIFOQueue pending) {
         int cleaned = 0;
-        for (int budget = CHUNKS_PER_TICK; budget > 0 && !pending.isEmpty(); budget--) {
+        // Housekeeping steps back while the server lags: the same slowdown that stretches the scan interval
+        int budget = Math.max(1, CHUNKS_PER_TICK / AutoBalance.slowdown(level.getServer()));
+        for (; budget > 0 && !pending.isEmpty(); budget--) {
             long chunk = pending.dequeueLong();
             cleaned += cleanChunk(level, ChunkPos.getX(chunk), ChunkPos.getZ(chunk));
         }
@@ -143,9 +145,12 @@ final class OrphanPipeWaterJanitor {
 
     private List<BlockPos> findOrphans(ServerLevel level, LevelChunk chunk) {
         List<BlockPos> orphans = new ArrayList<>();
+        boolean traceHidden = FluidCompactLog.isDebugMode(); // read once per chunk, not once per block entity
         for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
             BlockState state = blockEntity.getBlockState();
-            traceHiddenFluid(level, state, blockEntity.getBlockPos());
+            if (traceHidden) {
+                traceHiddenFluid(level, state, blockEntity.getBlockPos());
+            }
             if (isWaterloggedPipe(state) && !hasWaterOutsidePipes(level, blockEntity.getBlockPos())) {
                 orphans.add(blockEntity.getBlockPos().immutable());
             }
@@ -155,7 +160,7 @@ final class OrphanPipeWaterJanitor {
 
     // Debug aid: fluid that the world reports inside a pipe whose own block state says "empty" is held somewhere else
     private void traceHiddenFluid(ServerLevel level, BlockState state, BlockPos pos) {
-        if (!FluidCompactLog.isDebugMode() || !pipes.contains(state.getBlock()) || !state.getFluidState().isEmpty()) {
+        if (!pipes.contains(state.getBlock()) || !state.getFluidState().isEmpty()) {
             return;
         }
         if (!level.getFluidState(pos).isEmpty()) {

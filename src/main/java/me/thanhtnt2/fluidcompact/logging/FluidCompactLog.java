@@ -35,6 +35,9 @@ public final class FluidCompactLog {
 
     private static final Object LOCK = new Object();
     private static final Map<String, Long> LAST_VERBOSE_MILLIS = new ConcurrentHashMap<>();
+    // Per failing hook: {time of the last written error, repeats hidden since then}
+    private static final Map<String, long[]> ERROR_THROTTLE_STATE = new ConcurrentHashMap<>();
+    private static final long ERROR_THROTTLE_MILLIS = 60_000L;
     // Above this many remembered keys, entries whose throttle window has passed are dropped (see pruneThrottleKeys)
     private static final int THROTTLE_KEYS_PRUNE_THRESHOLD = 512;
 
@@ -86,6 +89,29 @@ public final class FluidCompactLog {
     public static void error(String message, Throwable error) {
         FluidCompact.LOGGER.error("[FluidCompact] {}", message, error);
         write("ERROR", message, error);
+    }
+
+    /**
+     * Like {@link #error} but a repeating failure of the same kind is written once per minute, with a count of
+     * the hidden repeats. A broken hook inside a machine tick would otherwise write a stack trace on every
+     * tick, and every written line is flushed to disk on the server thread.
+     *
+     * @param key a fixed name for the failing hook (never a position), so the table stays tiny
+     */
+    public static void errorThrottled(String key, String message, Throwable error) {
+        long now = System.currentTimeMillis();
+        long[] state = ERROR_THROTTLE_STATE.computeIfAbsent(key, ignored -> new long[2]);
+        String suffix;
+        synchronized (state) {
+            if (state[0] != 0L && now - state[0] < ERROR_THROTTLE_MILLIS) {
+                state[1]++;
+                return;
+            }
+            suffix = state[1] > 0 ? " (" + state[1] + " identical error(s) hidden during the last minute)" : "";
+            state[0] = now;
+            state[1] = 0L;
+        }
+        error(message + suffix, error);
     }
 
     /** Only written when {@code logging.verbose} or {@code logging.debugMode} is on. */

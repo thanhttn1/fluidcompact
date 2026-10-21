@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
 /**
@@ -31,12 +30,11 @@ import net.minecraft.world.level.material.FluidState;
  * <p>The original Drain removes fluid blocks one by one and puts the same number of full blocks below. With
  * Flowing Fluids a cell holds 1 to 8 levels, so that "one block" arithmetic neither matches what was removed
  * nor what Flowing Fluids allows. Here the Drain instead asks {@link FiniteFluidService} to take levels from
- * the fluid above and places exactly that many levels below.
+ * the fluid it can reach and places exactly that many levels below.
  *
- * <p>Dry-valve fix: the Copper Valve normally sits in the cell directly above the Drain. FluidCompact sets the
- * Flowing Fluids waterlog flow mode to IGNORE, so a valve that was not waterlogged when placed (or that was
- * emptied once) can never receive water again. Looking only at that cell made the Drain stop for good, so the
- * cells touching a dry waterloggable block are probed as well, and the valve cell is never used as a source.
+ * <p>Where the Drain finds its fluid: directly above it; or, because a Copper Valve is waterlogged in the original
+ * and Flowing Fluids ignores waterlogging, around a waterloggable block above it; or around a Copper Valve that
+ * sits on one of its four sides.
  *
  * <p>Called from the mixin on the server thread. Has no reference to Alex's Caves classes.
  */
@@ -45,15 +43,20 @@ public final class AlexsCavesDrainBridge {
     private static final ResourceLocation FALLBACK_MACHINE_ID =
             ResourceLocation.fromNamespaceAndPath(FluidCompact.MODID, "unknown_drain");
 
-    // Probe order next to a dry valve: the lake surface above first, then the four sides
+    private static final String ALEXS_CAVES_NAMESPACE = "alexscaves";
+    private static final String COPPER_VALVE_PATH = "copper_valve";
+
+    // Cells around a valve that may hold the fluid it is "looking at"; never downwards, that is the drain's own side
     private static final Direction[] VALVE_PROBE_DIRECTIONS =
             {Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+    private static final Direction[] SIDE_DIRECTIONS =
+            {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
 
-    private AlexsCavesDrainBridge() {
+    /** Where the fluid is taken from, and what kind of fluid it is. */
+    private record FluidSource(BlockPos origin, FlowingFluid fluid) {
     }
 
-    /** Where the Drain starts pulling from, and which fluid it found there. */
-    private record FluidSource(BlockPos origin, FlowingFluid fluid) {
+    private AlexsCavesDrainBridge() {
     }
 
     /**
@@ -63,9 +66,11 @@ public final class AlexsCavesDrainBridge {
     public static boolean tryHandle(BlockState drainState, Level level, BlockPos drainPos) {
         try {
             return handle(drainState, level, drainPos);
-        } catch (RuntimeException exception) {
-            // Fail open: nothing has been changed yet when planning throws, so the original logic may run
-            FluidCompactLog.error("Alex's Caves Drain hook failed at " + drainPos.toShortString(), exception);
+        } catch (RuntimeException | LinkageError error) {
+            // Fail open. handle() only lets an error reach this point before it has changed the world
+            // (LinkageError covers a Flowing Fluids API that changed shape), so the original logic may run
+            FluidCompactLog.errorThrottled("alexscaves-drain",
+                    "Alex's Caves Drain hook failed at " + drainPos.toShortString(), error);
             return false;
         }
     }
@@ -77,11 +82,9 @@ public final class AlexsCavesDrainBridge {
         if (!FluidCompactCompatConfig.ALEXS_DRAIN_ENABLED.get()) {
             return false;
         }
-
         Optional<FluidSource> located = locateFluidSource(serverLevel, drainPos);
         if (located.isEmpty()) {
-            // Nothing to drain (or a fluid that is not level based): the original logic handles both
-            logSkip(drainPos, () -> "no fluid above the Drain or beside the valve above it");
+            logSkip(drainPos, () -> "no fluid above the Drain or beside a Copper Valve next to it");
             return false;
         }
         FluidSource source = located.get();
@@ -104,39 +107,79 @@ public final class AlexsCavesDrainBridge {
         if (!result.managed()) {
             return false;
         }
-        moveFluid(serverLevel, drainPos, source.fluid(), plan, result);
+        // From here the world has been charged: an error must not hand the Drain back to the original logic,
+        // which would move the same fluid a second time
+        try {
+            moveFluid(serverLevel, drainPos, source.fluid(), plan, result);
+        } catch (RuntimeException | LinkageError error) {
+            FluidCompactLog.errorThrottled("alexscaves-drain-move",
+                    "Alex's Caves Drain could not place the fluid it took at " + drainPos.toShortString(), error);
+        }
         scheduleNextCycle(serverLevel, drainPos, drainState);
         return true;
     }
 
-    /**
-     * The cell above the Drain wins. When it holds no fluid but contains a waterloggable block (the Copper Valve),
-     * the cells touching it are probed instead, because that block cannot be refilled under the IGNORE waterlog mode.
-     */
     private static Optional<FluidSource> locateFluidSource(ServerLevel level, BlockPos drainPos) {
         BlockPos above = drainPos.above();
         Optional<FluidSource> direct = readFluidSource(level, above);
         if (direct.isPresent()) {
             return direct;
         }
-        if (!(level.getBlockState(above).getBlock() instanceof SimpleWaterloggedBlock)) {
-            return Optional.empty();
+        // A waterloggable block above (the Copper Valve) does not hold water itself while Flowing Fluids ignores
+        // waterlogging, so look at the cells around it instead
+        if (level.getBlockState(above).getBlock() instanceof SimpleWaterloggedBlock) {
+            Optional<FluidSource> besideAbove = probeAround(level, above, drainPos);
+            if (besideAbove.isPresent()) {
+                return besideAbove;
+            }
         }
-        for (Direction direction : VALVE_PROBE_DIRECTIONS) {
-            Optional<FluidSource> neighbour = readFluidSource(level, above.relative(direction));
-            if (neighbour.isPresent()) {
-                return neighbour;
+        return locateBesideSideValves(level, drainPos);
+    }
+
+    // The valve works as a redstone switch from any side of the Drain, so it must be allowed to hand out fluid from there too
+    private static Optional<FluidSource> locateBesideSideValves(ServerLevel level, BlockPos drainPos) {
+        for (Direction side : SIDE_DIRECTIONS) {
+            BlockPos valvePos = drainPos.relative(side);
+            if (!isCopperValve(level.getBlockState(valvePos))) {
+                continue;
+            }
+            Optional<FluidSource> inValve = readFluidSource(level, valvePos);
+            if (inValve.isPresent()) {
+                return inValve;
+            }
+            Optional<FluidSource> aroundValve = probeAround(level, valvePos, drainPos);
+            if (aroundValve.isPresent()) {
+                return aroundValve;
             }
         }
         return Optional.empty();
     }
 
+    private static Optional<FluidSource> probeAround(ServerLevel level, BlockPos center, BlockPos excluded) {
+        for (Direction direction : VALVE_PROBE_DIRECTIONS) {
+            BlockPos probed = center.relative(direction);
+            if (probed.equals(excluded)) {
+                continue;
+            }
+            Optional<FluidSource> found = readFluidSource(level, probed);
+            if (found.isPresent()) {
+                return found;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static boolean isCopperValve(BlockState state) {
+        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+        return ALEXS_CAVES_NAMESPACE.equals(key.getNamespace()) && COPPER_VALVE_PATH.equals(key.getPath());
+    }
+
     private static Optional<FluidSource> readFluidSource(ServerLevel level, BlockPos pos) {
         FluidState fluidState = level.getFluidState(pos);
-        if (fluidState.isEmpty() || !(fluidState.getType() instanceof FlowingFluid flowingFluid)) {
+        if (fluidState.isEmpty() || !(fluidState.getType() instanceof FlowingFluid flowing)) {
             return Optional.empty();
         }
-        return Optional.of(new FluidSource(pos.immutable(), flowingFluid));
+        return Optional.of(new FluidSource(pos.immutable(), flowing));
     }
 
     private static FluidIntakeRequest buildRequest(
@@ -153,9 +196,9 @@ public final class AlexsCavesDrainBridge {
         }
         List<BlockPos> sources = new ArrayList<>(2);
         sources.add(cursor.immutable());
-        // Fallback only for a plain fluid cell: emptying a waterlogged block would dry it out for good
-        boolean originIsPlainFluid = level.getBlockState(source.origin()).getBlock() instanceof LiquidBlock;
-        if (originIsPlainFluid && !source.origin().equals(cursor)) {
+        // The origin is a second candidate only when it is a real fluid block; a waterlogged valve is not one
+        boolean originIsFluidBlock = level.getBlockState(source.origin()).getBlock() instanceof LiquidBlock;
+        if (originIsFluidBlock && !source.origin().equals(cursor)) {
             sources.add(source.origin());
         }
         return sources;
@@ -187,7 +230,7 @@ public final class AlexsCavesDrainBridge {
         level.scheduleTick(drainPos, drainState.getBlock(), FluidCompactCompatConfig.ALEXS_DRAIN_INTERVAL_TICKS.get());
     }
 
-    // The reason is a Supplier so no string is built while detail logging is off
+    // Says why a Drain did nothing; the text is only built while verbose/debug logging is on
     private static void logSkip(BlockPos drainPos, Supplier<String> reason) {
         if (!FluidCompactLog.isDetailLoggingActive()) {
             return;

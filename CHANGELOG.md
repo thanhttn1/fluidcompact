@@ -2,6 +2,27 @@
 
 Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small update or fix.
 
+## 1.3.2
+
+* Fix: Modern Industrialization water pumps now also take the thin, non-source water layers Flowing Fluids leaves
+  behind, so a pond can be drained to the last level. Before, such a layer made the pump run without producing water.
+  The output per pump tier is still Modern Industrialization's own (bronze 125 mB, steel 250 mB, electric 2000 mB per
+  water cell and cycle) and is always paid by the world. New option `modern_industrialization_pumps.drainThinWater`.
+* Fix: the PneumaticCraft Liquid Hopper no longer needs a container on its output side to drain leftover water; with no
+  output the hopper's own tank simply fills. The old `requireOutputContainer` key is ignored; the new
+  `liquidHopperLeftoverNeedsOutput` (default off) replaces it. Skipped hoppers now log why when verbose/debug is on.
+* Alex's Caves: a Copper Valve on any of the four sides of the Drain now also lets it take fluid from around the valve.
+* Alex's Caves: kept the community-requested valve-above handling and the new skip-reason log lines.
+* Hardening: every hook now also catches `LinkageError` (a changed Flowing Fluids API) and writes a repeating failure at
+  most once a minute (`FluidCompactLog.errorThrottled`) instead of a stack trace on every tick.
+* Alex's Caves: an error after the world was already charged no longer hands the Drain back to the original logic, so
+  the same fluid cannot be moved twice.
+* Optimisation: the pipe cleanup takes fewer chunks per tick while the server lags, reads the debug flag once per chunk,
+  and the Drain sound/bubble lookup no longer takes a lock on every cycle.
+* README now lists exactly which versions of each mod were checked.
+* This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond.
+  Rest assured, all planned compatibility updates mods will proceed as scheduled.
+
 ## 1.3.1
 
 * Fix: the Modern Industrialization pump hook now fails open like every other hook. An error inside it (for example a
