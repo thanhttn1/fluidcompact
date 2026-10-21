@@ -11,6 +11,7 @@ import me.thanhtnt2.fluidcompact.api.FluidIntakeResult;
 import me.thanhtnt2.fluidcompact.config.FluidCompactConfig;
 import me.thanhtnt2.fluidcompact.core.FluidCompactAttachments;
 import me.thanhtnt2.fluidcompact.core.PumpStatistics;
+import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +37,10 @@ public final class MiPumpBridge {
 
     private static final Fluid PUMPED_FLUID = Fluids.WATER;
 
+    // A failure here repeats on every pump tick, so the full report is limited to one per minute
+    private static final long FAILURE_REPORT_INTERVAL_MILLIS = 60_000L;
+    private static volatile long lastFailureReportMillis;
+
     private MiPumpBridge() {
     }
 
@@ -45,7 +50,31 @@ public final class MiPumpBridge {
      *         less (possibly zero) when the surrounding water ran short
      */
     public static long limitPumpedMillibuckets(BlockEntity pump, long requestedMillibuckets) {
-        if (requestedMillibuckets <= 0L || !(pump.getLevel() instanceof ServerLevel level)) {
+        if (requestedMillibuckets <= 0L || !FluidCompactApi.isReady()) {
+            return requestedMillibuckets;
+        }
+        try {
+            return limitInsideLevel(pump, requestedMillibuckets);
+        } catch (RuntimeException | LinkageError error) {
+            // Fail open like every other bridge: a broken hook (for example an addon listener that throws,
+            // or a Flowing Fluids API change) must never turn into a "ticking block entity" crash
+            reportFailure(pump, error);
+            return requestedMillibuckets;
+        }
+    }
+
+    private static void reportFailure(BlockEntity pump, Throwable error) {
+        long now = System.currentTimeMillis();
+        if (now - lastFailureReportMillis < FAILURE_REPORT_INTERVAL_MILLIS) {
+            return;
+        }
+        lastFailureReportMillis = now;
+        FluidCompactLog.error("Modern Industrialization pump hook failed at " + pump.getBlockPos().toShortString()
+                + "; the pump runs unlimited until this is fixed (repeats are hidden for a minute)", error);
+    }
+
+    private static long limitInsideLevel(BlockEntity pump, long requestedMillibuckets) {
+        if (!(pump.getLevel() instanceof ServerLevel level)) {
             return requestedMillibuckets;
         }
         FiniteFluidService service = FluidCompactApi.service();
