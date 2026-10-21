@@ -1,0 +1,125 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="thanhtnt2"
+description='''
+An unofficial intermediary compatibility mod that helps Flowing Fluids understand other mods better.
+'''
+credits='''Flowing Fluids by Traben (GNU LGPL 3.0), required and not bundled. See CREDITS.md for every mod FluidCompact works with.'''
+
+# Compat modules: one mixin config per mod so each hook is guarded and removable on its own
+[[mixins]]
+config="${mod_id}.compat.modernindustrialization.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.mekanism.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.mekanismelements.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.alexscaves.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.pneumaticcraft.mixins.json"
+
+[[mixins]]
+config="${mod_id}.compat.pneumaticcraft.hopper.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Flowing Fluids is mandatory: without it the game stops at the mod list screen and asks for it
+[[dependencies.${mod_id}]]
+    modId="flowing_fluids"
+    type="required"
+    versionRange="[1.0.6,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Everything below is optional: FluidCompact must boot without any of it
+[[dependencies.${mod_id}]]
+    modId="modern_industrialization"
+    type="optional"
+    versionRange="[2.5,3)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jade"
+    type="optional"
+    versionRange="[15,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[19,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="mekanism"
+    type="optional"
+    versionRange="[10.7,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="mekanismelements"
+    type="optional"
+    versionRange="[3,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="fluidlogged"
+    type="optional"
+    versionRange="[2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="yet_another_config_lib_v3"
+    type="optional"
+    versionRange="[3.5,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="pneumaticcraft"
+    type="optional"
+    versionRange="[8.2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="optional"
+    versionRange="[6,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="alexscaves"
+    type="optional"
+    versionRange="[2,)"
+    ordering="AFTER"
+    side="BOTH"
