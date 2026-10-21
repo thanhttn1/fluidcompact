@@ -4,6 +4,8 @@ Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small upda
 
 ## 1.3.2
 
+# This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond. Rest assured, all planned compatibility updates mods will proceed as scheduled.
+
 * Fix: Modern Industrialization water pumps now also take the thin, non-source water layers Flowing Fluids leaves
   behind, so a pond can be drained to the last level. Before, such a layer made the pump run without producing water.
   The output per pump tier is still Modern Industrialization's own (bronze 125 mB, steel 250 mB, electric 2000 mB per
@@ -20,8 +22,6 @@ Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small upda
 * Optimisation: the pipe cleanup takes fewer chunks per tick while the server lags, reads the debug flag once per chunk,
   and the Drain sound/bubble lookup no longer takes a lock on every cycle.
 * README now lists exactly which versions of each mod were checked.
-* This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond.
-  Rest assured, all planned compatibility updates mods will proceed as scheduled.
 
 ## 1.3.1
 
