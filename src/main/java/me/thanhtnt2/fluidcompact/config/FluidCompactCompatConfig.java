@@ -40,6 +40,20 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.IntValue SEAWATER_MIN_TICKS_BETWEEN_INTAKES;
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
+    public static final ModConfigSpec.BooleanValue ALEXS_DRAIN_ENABLED;
+    public static final ModConfigSpec.IntValue ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE;
+    public static final ModConfigSpec.IntValue ALEXS_DRAIN_INTERVAL_TICKS;
+    public static final ModConfigSpec.IntValue ALEXS_DRAIN_FILL_SPREAD;
+    public static final ModConfigSpec.BooleanValue ALEXS_DRAIN_WORLD_EFFECTS;
+
+    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_ENABLED;
+    public static final ModConfigSpec.BooleanValue AUTO_BALANCED_FOLLOW_FLOWING_FLUIDS;
+    public static final ModConfigSpec.IntValue AUTO_BALANCED_TARGET_MSPT;
+    public static final ModConfigSpec.IntValue AUTO_BALANCED_MAX_SLOWDOWN;
+
+    public static final ModConfigSpec.BooleanValue CREATE_ENABLED;
+    public static final ModConfigSpec.BooleanValue CREATE_EXCLUDE_BLOCKS;
+
     public static final ModConfigSpec.BooleanValue PNC_PICKUP_ENABLED;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WATER;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WITHOUT_UPGRADE;

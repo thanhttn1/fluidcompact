@@ -109,3 +109,17 @@ config="${mod_id}.compat.pneumaticcraft.hopper.mixins.json"
     versionRange="[8.2,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="optional"
+    versionRange="[6,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="alexscaves"
+    type="optional"
+    versionRange="[2,)"
+    ordering="AFTER"
+    side="BOTH"

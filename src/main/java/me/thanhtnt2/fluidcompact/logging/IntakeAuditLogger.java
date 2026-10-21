@@ -15,6 +15,10 @@ public final class IntakeAuditLogger {
     }
 
     public static void onIntake(FluidIntakeEvent.Post event) {
+        // Runs for every intake of every machine: build no strings when nothing would be written
+        if (!FluidCompactLog.isDetailLoggingActive()) {
+            return;
+        }
         FluidIntakeRequest request = event.getRequest();
         FluidIntakeResult result = event.getResult();
         String machine = String.valueOf(request.machineId()) + "@" + request.machinePos().toShortString();

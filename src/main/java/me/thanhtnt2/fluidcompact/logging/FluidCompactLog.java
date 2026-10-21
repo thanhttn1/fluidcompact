@@ -35,6 +35,8 @@ public final class FluidCompactLog {
 
     private static final Object LOCK = new Object();
     private static final Map<String, Long> LAST_VERBOSE_MILLIS = new ConcurrentHashMap<>();
+    // Above this many remembered keys, entries whose throttle window has passed are dropped (see pruneThrottleKeys)
+    private static final int THROTTLE_KEYS_PRUNE_THRESHOLD = 512;
 
     private static BufferedWriter writer;
     private static Path logFile;
@@ -100,6 +102,14 @@ public final class FluidCompactLog {
         }
     }
 
+    /**
+     * True when a debug line could really be written right now. Hot paths use this to skip building
+     * message strings that would be thrown away while verbose and debug logging are both off.
+     */
+    public static boolean isDetailLoggingActive() {
+        return isFileEnabled() && (isDebugMode() || isVerbose());
+    }
+
     /** Like {@link #debug} but at most once per throttle window for the same key (for example a machine position). */
     public static void debugThrottled(String key, String pattern, Object... arguments) {
         if (isDebugMode()) {
@@ -116,7 +126,18 @@ public final class FluidCompactLog {
             return;
         }
         LAST_VERBOSE_MILLIS.put(key, now);
+        pruneThrottleKeys(now);
         write("DEBUG", format(pattern, arguments), null);
+    }
+
+    // A key whose window has passed would be logged again anyway, so forgetting it changes nothing.
+    // This keeps the map from growing with every machine that was ever placed on a long-running server
+    private static void pruneThrottleKeys(long now) {
+        if (LAST_VERBOSE_MILLIS.size() <= THROTTLE_KEYS_PRUNE_THRESHOLD) {
+            return;
+        }
+        long window = throttleMillis();
+        LAST_VERBOSE_MILLIS.values().removeIf(lastMillis -> now - lastMillis >= window);
     }
 
     private static void keepPreviousRun(Path current, Path previous) {

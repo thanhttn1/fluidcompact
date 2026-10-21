@@ -71,11 +71,26 @@ final class DrainFillPlan {
 
         List<Step> steps = new ArrayList<>();
         int budget = maxLevels;
-        for (int y = floor.getY(); y <= firstBelow.getY() && budget > 0; y++) {
+        for (int y = findFirstLayerToFill(level, firstBelow, floor, fluid); y <= firstBelow.getY() && budget > 0; y++) {
             BlockPos column = new BlockPos(drainPos.getX(), y, drainPos.getZ());
             budget -= collectLayer(level, column, fluid, maxSpread, budget, steps);
         }
         return new DrainFillPlan(List.copyOf(steps), maxLevels - budget);
+    }
+
+    /**
+     * Layers under the highest completely full cell of the column are taken as full and skipped. Without this,
+     * a Drain above an already full tank would re-examine every layer of it each cycle for nothing.
+     */
+    private static int findFirstLayerToFill(ServerLevel level, BlockPos firstBelow, BlockPos floor, FlowingFluid fluid) {
+        BlockPos.MutableBlockPos cursor = firstBelow.mutable();
+        while (cursor.getY() > floor.getY()) {
+            if (levelsAt(level, cursor, fluid) == FluidCompactApi.LEVELS_PER_BUCKET) {
+                return cursor.getY();
+            }
+            cursor.move(Direction.DOWN);
+        }
+        return floor.getY();
     }
 
     private static BlockPos findFloor(ServerLevel level, BlockPos start, FlowingFluid fluid) {
