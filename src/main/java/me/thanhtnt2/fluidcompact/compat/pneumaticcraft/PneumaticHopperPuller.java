@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -79,7 +80,7 @@ public final class PneumaticHopperPuller {
         if (!FluidCompactCompatConfig.PNC_LEFTOVER_WATER.get()) {
             return false;
         }
-        HopperPullSettings settings = hopper.getData(PneumaticAttachments.HOPPER_PULL_SETTINGS.get());
+        HopperPullSettings settings = settingsOf(hopper);
         long now = level.getGameTime();
         Long idleUntil = IDLE_UNTIL.get(hopper);
         if (!settings.enabled() || now < settings.nextAttemptGameTime() || (idleUntil != null && now < idleUntil)) {
@@ -121,13 +122,20 @@ public final class PneumaticHopperPuller {
         return drainInto(level, hopper, settings, hopperTank, inputPos, levels);
     }
 
+    // getData would attach (and later save) a default value on every hopper that merely runs this check,
+    // so a hopper nobody ever configured stays free of FluidCompact data
+    private static HopperPullSettings settingsOf(BlockEntity hopper) {
+        AttachmentType<HopperPullSettings> type = PneumaticAttachments.HOPPER_PULL_SETTINGS.get();
+        return hopper.hasData(type) ? hopper.getData(type) : HopperPullSettings.DEFAULT;
+    }
+
     private static void idleFor(ServerLevel level, BlockEntity hopper) {
         int waitTicks = AutoBalance.scaleTicks(level.getServer(), FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS.get());
         IDLE_UNTIL.put(hopper, level.getGameTime() + waitTicks);
     }
 
     private static boolean drainInto(ServerLevel level, BlockEntity hopper, HopperPullSettings settings,
-            IFluidHandler hopperTank, BlockPos inputPos, int levels) {
+                                     IFluidHandler hopperTank, BlockPos inputPos, int levels) {
         ResourceLocation machineId = BuiltInRegistries.BLOCK.getKey(hopper.getBlockState().getBlock());
         FluidIntakeRequest request = new FluidIntakeRequest(
                 level, hopper.getBlockPos(), machineId, Fluids.WATER, levels, List.of(inputPos));
