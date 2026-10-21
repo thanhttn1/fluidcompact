@@ -40,6 +40,8 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.IntValue SEAWATER_MIN_TICKS_BETWEEN_INTAKES;
     public static final ModConfigSpec.EnumValue<ShortfallBehavior> SEAWATER_SHORTFALL;
 
+    public static final ModConfigSpec.BooleanValue MI_PUMP_DRAIN_THIN_WATER;
+
     public static final ModConfigSpec.BooleanValue ALEXS_DRAIN_ENABLED;
     public static final ModConfigSpec.IntValue ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE;
     public static final ModConfigSpec.IntValue ALEXS_DRAIN_INTERVAL_TICKS;
@@ -58,6 +60,7 @@ public final class FluidCompactCompatConfig {
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WATER;
     public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_WITHOUT_UPGRADE;
     public static final ModConfigSpec.BooleanValue PNC_REQUIRE_OUTPUT_CONTAINER;
+    public static final ModConfigSpec.BooleanValue PNC_LEFTOVER_NEEDS_OUTPUT;
     public static final ModConfigSpec.IntValue PNC_EMPTY_RETRY_TICKS;
     public static final ModConfigSpec.BooleanValue PNC_GUI_BUTTON;
 
@@ -177,9 +180,12 @@ public final class FluidCompactCompatConfig {
                         "with the upgrade the hopper takes whole source blocks too, without it only the thin leftover water.")
                 .define("liquidHopperLeftoverWithoutUpgrade", false);
         PNC_REQUIRE_OUTPUT_CONTAINER = BUILDER
-                .comment("Only pull water while a tank (any mod) that accepts water is connected to the hopper's output side.",
-                        "Stops a hopper from filling itself and then idling or leaking.")
+                .comment("[Ignored since 1.3.2, replaced by liquidHopperLeftoverNeedsOutput. Kept so existing files are not rewritten.]")
                 .define("requireOutputContainer", true);
+        PNC_LEFTOVER_NEEDS_OUTPUT = BUILDER
+                .comment("Only drain leftover water while the hopper's output side has a container that can take water.",
+                        "Off by default: the hopper's own tank fills up and then simply stops, like PneumaticCraft's own import.")
+                .define("liquidHopperLeftoverNeedsOutput", false);
         PNC_EMPTY_RETRY_TICKS = BUILDER
                 .comment("After a hopper found no water to drain it waits this many ticks before looking again. Higher = less work.")
                 .defineInRange("emptyRetryTicks", 20, 1, 1200);
@@ -245,6 +251,14 @@ public final class FluidCompactCompatConfig {
         FF_PIPES_CLEANUP_CHUNK_RADIUS = BUILDER
                 .comment("Only pipes in loaded chunks within this many chunks of a player are cleaned. Lower = less work.")
                 .defineInRange("cleanupChunkRadius", 4, 1, 16);
+        BUILDER.pop();
+
+        BUILDER.push("modern_industrialization_pumps");
+        MI_PUMP_DRAIN_THIN_WATER = BUILDER
+                .comment("Let Modern Industrialization water pumps also pump the thin, non-source water layers Flowing Fluids leaves behind,",
+                        "so a pond can be drained completely. Output per pump tier stays exactly what Modern Industrialization defines",
+                        "(bronze 125 mB, steel 250 mB, electric 2000 mB per water cell and cycle) and is always paid by the world.")
+                .define("drainThinWater", true);
         BUILDER.pop();
 
         BUILDER.push("alexscaves_drain");

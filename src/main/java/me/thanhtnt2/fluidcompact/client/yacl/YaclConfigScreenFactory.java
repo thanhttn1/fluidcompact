@@ -133,6 +133,7 @@ public final class YaclConfigScreenFactory {
                 .description(OptionDescription.of(Component.translatable("fluidcompact.group.mi.desc")))
                 .option(slider("miDrainPercent", FluidCompactConfig.DRAIN_PERCENT, 1, 1000, 5, installed))
                 .option(slider("miMinTicks", FluidCompactConfig.MIN_TICKS_BETWEEN_INTAKES, 0, 6000, 20, installed))
+                .option(toggle("miDrainThinWater", FluidCompactCompatConfig.MI_PUMP_DRAIN_THIN_WATER, installed))
                 .build();
     }
 
@@ -181,7 +182,7 @@ public final class YaclConfigScreenFactory {
                 .option(toggle("pncPickupEnabled", FluidCompactCompatConfig.PNC_PICKUP_ENABLED, installed))
                 .option(toggle("pncLeftoverWater", FluidCompactCompatConfig.PNC_LEFTOVER_WATER, installed))
                 .option(toggle("pncLeftoverWithoutUpgrade", FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE, installed))
-                .option(toggle("pncRequireOutput", FluidCompactCompatConfig.PNC_REQUIRE_OUTPUT_CONTAINER, installed))
+                .option(toggle("pncNeedsOutput", FluidCompactCompatConfig.PNC_LEFTOVER_NEEDS_OUTPUT, installed))
                 .option(slider("pncEmptyRetry", FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS, 1, 1200, 1, installed))
                 .option(toggle("pncGuiButton", FluidCompactCompatConfig.PNC_GUI_BUTTON, installed))
                 .build();

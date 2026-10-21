@@ -28,9 +28,10 @@ public final class MekanismPumpBridge {
         }
         try {
             return isForced(fluid);
-        } catch (RuntimeException exception) {
+        } catch (RuntimeException | LinkageError error) {
             // Fail open: a broken hook must never stop Mekanism's pump from working
-            FluidCompactLog.error("Mekanism electric pump hook failed for fluid " + BuiltInRegistries.FLUID.getKey(fluid), exception);
+            FluidCompactLog.errorThrottled("mekanism-electric-pump",
+                    "Mekanism electric pump hook failed for fluid " + BuiltInRegistries.FLUID.getKey(fluid), error);
             return false;
         }
     }
