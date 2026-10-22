@@ -10,6 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * @param enabled               whether the player left the FluidCompact water pull switched on for this hopper
  * @param nextAttemptGameTime   game time before which the hopper does not look for leftover water again
  */
+// nextAttemptGameTime is no longer written by anything (the idle delay lives in memory now). The component stays so
+// worlds saved by 1.2.x and 1.3.x keep loading; a default value is not written to the save at all.
 public record HopperPullSettings(boolean enabled, long nextAttemptGameTime) {
 
     public static final HopperPullSettings DEFAULT = new HopperPullSettings(true, 0L);
@@ -21,9 +23,5 @@ public record HopperPullSettings(boolean enabled, long nextAttemptGameTime) {
 
     public HopperPullSettings withEnabled(boolean newEnabled) {
         return new HopperPullSettings(newEnabled, nextAttemptGameTime);
-    }
-
-    public HopperPullSettings withNextAttempt(long gameTime) {
-        return new HopperPullSettings(enabled, gameTime);
     }
 }

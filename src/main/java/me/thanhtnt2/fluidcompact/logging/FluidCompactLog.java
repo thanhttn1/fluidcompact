@@ -31,6 +31,9 @@ public final class FluidCompactLog {
 
     private static final String LOG_FILE_NAME = "fluidcompact.log";
     private static final String PREVIOUS_LOG_FILE_NAME = "fluidcompact-previous.log";
+    private static final String ROLLED_LOG_FILE_NAME = "fluidcompact-rolled.log";
+    // Debug mode can write a lot. At this size the file is rolled over once, so one run never needs more than two files
+    private static final long MAX_LOG_FILE_BYTES = 16L * 1024L * 1024L;
     private static final DateTimeFormatter TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT);
 
     private static final Object LOCK = new Object();
@@ -43,6 +46,7 @@ public final class FluidCompactLog {
 
     private static BufferedWriter writer;
     private static Path logFile;
+    private static long bytesWritten;
     private static boolean initialized;
 
     private FluidCompactLog() {
@@ -60,6 +64,8 @@ public final class FluidCompactLog {
                 Files.createDirectories(logsFolder);
                 Path current = logsFolder.resolve(LOG_FILE_NAME);
                 keepPreviousRun(current, logsFolder.resolve(PREVIOUS_LOG_FILE_NAME));
+                // A rolled file left by the last run is only the tail end of that run, so it must not be mistaken for this one
+                Files.deleteIfExists(logsFolder.resolve(ROLLED_LOG_FILE_NAME));
                 writer = Files.newBufferedWriter(current, StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
                 logFile = current;
@@ -178,6 +184,19 @@ public final class FluidCompactLog {
         }
     }
 
+    // Called with LOCK held. Keeps the first part of the run in the rolled file and continues in a fresh one
+    private static void rollOver() throws IOException {
+        writer.close();
+        Files.move(logFile, logFile.resolveSibling(ROLLED_LOG_FILE_NAME), StandardCopyOption.REPLACE_EXISTING);
+        writer = Files.newBufferedWriter(logFile, StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        bytesWritten = 0L;
+        writer.write("[" + LocalDateTime.now().format(TIMESTAMP) + "] [log/INFO] Log rolled over, the earlier part of this run is in "
+                + ROLLED_LOG_FILE_NAME);
+        writer.newLine();
+        writer.flush();
+    }
+
     private static void write(String level, String message, Throwable error) {
         if (!isFileEnabled()) {
             return;
@@ -187,13 +206,20 @@ public final class FluidCompactLog {
                 return;
             }
             try {
-                writer.write("[" + LocalDateTime.now().format(TIMESTAMP) + "] [" + Thread.currentThread().getName()
-                        + "/" + level + "] " + message);
+                String line = "[" + LocalDateTime.now().format(TIMESTAMP) + "] [" + Thread.currentThread().getName()
+                        + "/" + level + "] " + message;
+                writer.write(line);
                 writer.newLine();
+                bytesWritten += line.length() + 1L;
                 if (error != null) {
-                    writer.write(stackTraceOf(error));
+                    String stackTrace = stackTraceOf(error);
+                    writer.write(stackTrace);
+                    bytesWritten += stackTrace.length();
                 }
                 writer.flush();
+                if (bytesWritten >= MAX_LOG_FILE_BYTES) {
+                    rollOver();
+                }
             } catch (IOException exception) {
                 // Stop trying after the first failure so a full disk cannot spam the game log
                 writer = null;

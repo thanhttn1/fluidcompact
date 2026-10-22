@@ -1,6 +1,26 @@
 # Changelog
 
-Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small update or fix.
+Versioning: `2.X.0` for a big update (new mod support), `2.0.X` for a small update or fix.
+
+## 2.0.0 - Official Release
+
+First stable release. It contains everything from the 1.3.x betas (Alex's Caves Drain, thin-water pumping for Modern
+Industrialization pumps, the PneumaticCraft Liquid Hopper fixes, the fail-open hooks and the pipe-water cleanup) and
+these final changes:
+
+* **Public API is frozen.** `me.thanhtnt2.fluidcompact.api`, `api.event` and `api.compat` only gain members during 2.x;
+  nothing is removed or changed in meaning. Everything else is internal.
+* Safer hook loading: the PneumaticCraft pickup hook is now tied to the one flag it was written for
+  (`dontUpdateInfiniteWaterSources`), and the Modern Industrialization thin-water hook checks the method it redirects
+  and says so in the log when it has to stay off.
+* `fluidcompact.log` rolls over at 16 MB (the first part of the run goes to `fluidcompact-rolled.log`), so debug mode
+  can no longer fill a disk. The orphan-pipe cleanup also logs a repeating error only once a minute.
+* The debug snapshot now shows `leftoverNeedsOutput`, the option that is actually used.
+* Worlds saved by 1.2.x and 1.3.x load unchanged. The old `requireOutputContainer` key stays in the config file, ignored;
+  it will be removed in 3.0.
+
+Measured in a stress test (5 Drain block, 60 MI pumps, 21 Liquid Hoppers, 13,800 water cells): FluidCompact used about 0.1% of the
+tick time and about 3 KB of memory; the cost of a big water simulation comes from Flowing Fluids itself.
 
 ## 1.3.2
 
@@ -20,8 +40,6 @@ Versioning: `1.X.0` for a big update (new mod support), `1.0.X` for a small upda
 * Optimisation: the pipe cleanup takes fewer chunks per tick while the server lags, reads the debug flag once per chunk,
   and the Drain sound/bubble lookup no longer takes a lock on every cycle.
 * README now lists exactly which versions of each mod were checked.
-* This will likely be the final beta update for the 1.X.X series, as we are about to enter a dedicated debugging and optimization phase in preparation for the official Release of version 2.X.X and beyond.
-  Rest assured, all planned compatibility updates mods will proceed as scheduled.
 
 ## 1.3.1
 

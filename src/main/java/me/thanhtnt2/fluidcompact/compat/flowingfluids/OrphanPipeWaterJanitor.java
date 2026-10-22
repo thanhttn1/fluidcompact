@@ -77,7 +77,7 @@ final class OrphanPipeWaterJanitor {
         } catch (RuntimeException exception) {
             // A cleanup problem must never crash the server tick; dropping the list avoids repeating the failure every tick
             pendingChunks.remove(level.dimension());
-            FluidCompactLog.error("Orphan pipe water cleanup failed", exception);
+            FluidCompactLog.errorThrottled("orphan-pipe-janitor", "Orphan pipe water cleanup failed", exception);
         }
     }
 
