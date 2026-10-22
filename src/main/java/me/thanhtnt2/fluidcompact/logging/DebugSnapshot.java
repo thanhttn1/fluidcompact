@@ -66,9 +66,9 @@ public final class DebugSnapshot {
                 FluidCompactCompatConfig.AUTO_BALANCED_TARGET_MSPT.get(), FluidCompactCompatConfig.AUTO_BALANCED_MAX_SLOWDOWN.get());
         FluidCompactLog.info("config[create] enabled={} excludeCreateBlocks={}",
                 FluidCompactCompatConfig.CREATE_ENABLED.get(), FluidCompactCompatConfig.CREATE_EXCLUDE_BLOCKS.get());
-        FluidCompactLog.info("config[pneumaticcraft_pickup] enabled={} leftoverWater={} withoutUpgrade={} requireOutput={} retryTicks={} guiButton={}",
+        FluidCompactLog.info("config[pneumaticcraft_pickup] enabled={} leftoverWater={} withoutUpgrade={} leftoverNeedsOutput={} retryTicks={} guiButton={}",
                 FluidCompactCompatConfig.PNC_PICKUP_ENABLED.get(), FluidCompactCompatConfig.PNC_LEFTOVER_WATER.get(),
-                FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get(), FluidCompactCompatConfig.PNC_REQUIRE_OUTPUT_CONTAINER.get(),
+                FluidCompactCompatConfig.PNC_LEFTOVER_WITHOUT_UPGRADE.get(), FluidCompactCompatConfig.PNC_LEFTOVER_NEEDS_OUTPUT.get(),
                 FluidCompactCompatConfig.PNC_EMPTY_RETRY_TICKS.get(), FluidCompactCompatConfig.PNC_GUI_BUTTON.get());
         FluidCompactLog.info("config[fluidlogged_pipes] acceptDuplicationRisk={}", FluidCompactCompatConfig.FLUIDLOGGED_ACCEPT_DUPLICATION_RISK.get());
         FluidCompactLog.info("config[fluidlogged_pipes] enabled={} fluidloggable={} permeable={} shapeIndependent={} classes={} extra={}",
