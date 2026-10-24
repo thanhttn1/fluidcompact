@@ -81,6 +81,7 @@ public final class YaclConfigScreenFactory {
                 .group(buildMekanismGroup())
                 .group(buildMekanismElementsGroup())
                 .group(buildAlexsCavesGroup())
+                .group(buildImmersiveEngineeringGroup())
                 .group(buildPneumaticCraftGroup())
                 .group(buildCreateGroup())
                 .group(buildAutoBalancedGroup())
@@ -158,6 +159,16 @@ public final class YaclConfigScreenFactory {
                 .option(slider("seawaterDrainPercent", FluidCompactCompatConfig.SEAWATER_DRAIN_PERCENT, 1, 1000, 5, installed))
                 .option(slider("seawaterMinTicks", FluidCompactCompatConfig.SEAWATER_MIN_TICKS_BETWEEN_INTAKES, 0, 6000, 20, installed))
                 .option(choice("seawaterShortfall", FluidCompactCompatConfig.SEAWATER_SHORTFALL, ShortfallBehavior.class, installed))
+                .build();
+    }
+
+    private static OptionGroup buildImmersiveEngineeringGroup() {
+        boolean installed = isLoaded("immersiveengineering");
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("fluidcompact.group.immersiveengineering"))
+                .description(OptionDescription.of(Component.translatable("fluidcompact.group.immersiveengineering.desc")))
+                .option(toggle("iePumpFinite", FluidCompactCompatConfig.IE_PUMP_FINITE, installed))
+                .option(toggle("iePumpNoCobble", FluidCompactCompatConfig.IE_PUMP_NO_COBBLE, installed))
                 .build();
     }
 

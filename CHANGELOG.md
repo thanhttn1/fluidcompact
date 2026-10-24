@@ -2,7 +2,25 @@
 
 Versioning: `2.X.0` for a big update (new mod support), `2.0.X` for a small update or fix.
 
-## 2.0.0 - Official Release
+## 2.1.0
+
+* **New: Immersive Engineering.** The Fluid Pump no longer makes endless water (or lava, if lava source conversion is on)
+  out of a pool with two source blocks. Flowing Fluids does not change that rule, so the pump filled its tank from
+  nothing. With FluidCompact the pump takes real source blocks out of the world, 1000 mB per block, the way it already
+  works for oil. The Fluid Placer needs no hook: it puts one source block down per 1000 mB taken from its tank.
+* **Immersive Petroleum** needs no hook (it shows up in the compat list): its pumpjacks and derricks draw from
+  underground reservoirs, and its fluids can never turn into source blocks by themselves.
+* The pump no longer leaves cobblestone where it emptied a block of a finite fluid. Immersive Engineering replaces
+  every emptied block with cobblestone (its own `pump_placeCobble` option and a per-pump toggle); for a finite fluid
+  that left stone where the pond should shrink. FluidCompact skips the replacement for finite fluids only, so
+  Flowing Fluids can refill or drain the area. New option `immersive_engineering.noCobbleForFiniteFluids`.
+* Each Immersive Engineering hook is checked on its own against the pump's code when the game loads; a hook whose
+  target changed stays off with a log line, and a hook that keeps failing switches itself off for the session.
+* New options `immersive_engineering.finitePump` and `noCobbleForFiniteFluids`, with a matching group in "Mod Compact List".
+* Known limit: the Fluid Pump only takes whole source blocks, so thin water layers stay behind, as with any pump that
+  uses sources only.
+
+## 2.0.0 - Official release
 
 First stable release. It contains everything from the 1.3.x betas (Alex's Caves Drain, thin-water pumping for Modern
 Industrialization pumps, the PneumaticCraft Liquid Hopper fixes, the fail-open hooks and the pipe-water cleanup) and
@@ -19,7 +37,7 @@ these final changes:
 * Worlds saved by 1.2.x and 1.3.x load unchanged. The old `requireOutputContainer` key stays in the config file, ignored;
   it will be removed in 3.0.
 
-Measured in a stress test (5 Drain block, 60 MI pumps, 21 Liquid Hoppers, 13,800 water cells): FluidCompact used about 0.1% of the
+Measured in a stress test (60 MI pumps, 21 Liquid Hoppers, 13,800 water cells): FluidCompact used about 0.1% of the
 tick time and about 3 KB of memory; the cost of a big water simulation comes from Flowing Fluids itself.
 
 ## 1.3.2

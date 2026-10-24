@@ -15,6 +15,9 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 * **Modern Industrialization** Bronze, Steel and Electric Water Pumps stop creating water: every pumped
   millibucket is drained from the water source blocks around the pump.
 * **Alex's Caves** Drain (opened by a Copper Valve or redstone) moves finite fluid level by level instead of failing under Flowing Fluids.
+* **Immersive Engineering** Fluid Pump no longer makes endless water out of pools with two source blocks: it takes
+  real source blocks out of the world (1000 mB each). Its Fluid Placer needs nothing. **Immersive Petroleum** needs
+  no hook: its pumpjacks draw from underground reservoirs, not from fluid blocks in the world.
 * **PneumaticCraft: Repressurized** Liquid Hopper and Gas Lift drain the world instead of duplicating water.
 * **Mekanism** Electric Pump and **Mekanism Elements** Seawater Pump drain the world too.
 * **Fluidlogged** support so fluid enters and flows through pipes and cables instead of breaking or blocking.
@@ -38,11 +41,6 @@ NeoForge 1.21.1 - license: MIT (`LICENSE.txt`).
 * `FluidIntakeEvent.Pre / Post` on `NeoForge.EVENT_BUS` to cancel or adjust intakes
 * `CompatModuleRegistry.register(...)` to add an isolated compat module
 * Tags `fluidcompact:managed_fluids`, `fluidcompact:finite_pumps`, `fluidcompact:fluid_passable_blocks`
-
-## Building
-
-Copy the jars listed in `libs/README.txt` into `libs/` (compile-only references, never packed into the jar),
-then run `gradlew build`. The result is in `build/libs/`.
 
 ## Reporting bugs
 

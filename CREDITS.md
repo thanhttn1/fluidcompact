@@ -27,6 +27,14 @@ What FluidCompact does with it, stated plainly:
 * FluidCompact contains no Alex's Caves code or assets. It references the Drain block by class name at runtime and only
   replaces what the Drain does when a finite fluid is involved; everything else (Copper Valve, redstone, sounds) stays original.
 
+## Immersive Engineering and Immersive Petroleum
+
+* Immersive Engineering by BluSunrize and Damien A.W. Hazard (Blu's License of Common Sense). FluidCompact contains no
+  Immersive Engineering code or assets. It references the Fluid Pump by class name at runtime and only changes the
+  answer to one question the pump asks (whether a fluid may become an endless source).
+* Immersive Petroleum (All rights reserved). FluidCompact reads nothing from it and adds no hook; the module only
+  shows up in the compat list.
+
 ## Reporting bugs
 
 **Report every FluidCompact bug to me (thanhttn1), not to the author of Flowing Fluids or of any other mod.**

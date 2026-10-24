@@ -42,6 +42,9 @@ public final class FluidCompactCompatConfig {
 
     public static final ModConfigSpec.BooleanValue MI_PUMP_DRAIN_THIN_WATER;
 
+    public static final ModConfigSpec.BooleanValue IE_PUMP_FINITE;
+    public static final ModConfigSpec.BooleanValue IE_PUMP_NO_COBBLE;
+
     public static final ModConfigSpec.BooleanValue ALEXS_DRAIN_ENABLED;
     public static final ModConfigSpec.IntValue ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE;
     public static final ModConfigSpec.IntValue ALEXS_DRAIN_INTERVAL_TICKS;
@@ -259,6 +262,20 @@ public final class FluidCompactCompatConfig {
                         "so a pond can be drained completely. Output per pump tier stays exactly what Modern Industrialization defines",
                         "(bronze 125 mB, steel 250 mB, electric 2000 mB per water cell and cycle) and is always paid by the world.")
                 .define("drainThinWater", true);
+        BUILDER.pop();
+
+        BUILDER.push("immersive_engineering");
+        IE_PUMP_FINITE = BUILDER
+                .comment("Stop the Immersive Engineering Fluid Pump from making endless water or lava out of pools with two source",
+                        "blocks. With this on it takes real source blocks out of the world (1000 mB per block) like it does for oil.",
+                        "Only applies to fluids FluidCompact treats as finite, see fluidcompact-common.toml.")
+                .define("finitePump", true);
+        IE_PUMP_NO_COBBLE = BUILDER
+                .comment("Immersive Engineering pumps replace every block they empty with cobblestone (its own pump_placeCobble option).",
+                        "With this on, that replacement is skipped when the fluid is finite, so the emptied block stays empty and",
+                        "Flowing Fluids can refill or drain the area naturally. Fluids that are not finite still get cobblestone.",
+                        "IE warns that without cobblestone, pumping large amounts of fluid can cause lag.")
+                .define("noCobbleForFiniteFluids", true);
         BUILDER.pop();
 
         BUILDER.push("alexscaves_drain");

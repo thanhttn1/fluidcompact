@@ -26,6 +26,9 @@ config="${mod_id}.compat.mekanismelements.mixins.json"
 config="${mod_id}.compat.alexscaves.mixins.json"
 
 [[mixins]]
+config="${mod_id}.compat.immersiveengineering.mixins.json"
+
+[[mixins]]
 config="${mod_id}.compat.pneumaticcraft.mixins.json"
 
 [[mixins]]
@@ -121,5 +124,19 @@ config="${mod_id}.compat.pneumaticcraft.hopper.mixins.json"
     modId="alexscaves"
     type="optional"
     versionRange="[2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="immersiveengineering"
+    type="optional"
+    versionRange="[12,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="immersivepetroleum"
+    type="optional"
+    versionRange="[4,)"
     ordering="AFTER"
     side="BOTH"
