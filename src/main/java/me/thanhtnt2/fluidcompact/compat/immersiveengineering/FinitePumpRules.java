@@ -1,14 +1,15 @@
 package me.thanhtnt2.fluidcompact.compat.immersiveengineering;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import me.thanhtnt2.fluidcompact.api.FluidCompactApi;
 import me.thanhtnt2.fluidcompact.config.FluidCompactCompatConfig;
 import me.thanhtnt2.fluidcompact.logging.FluidCompactLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * The decisions behind the Immersive Engineering Fluid Pump hooks.
@@ -24,16 +25,8 @@ import net.minecraft.world.level.material.FluidState;
  * that would leave stone where the pond should shrink, so the replacement is skipped and Flowing Fluids refills
  * the gap.
  *
- * <p><b>Circuit breaker.</b> If a hook keeps failing (for example after an Immersive Engineering or Flowing Fluids
- * update changed something this code relies on) it switches itself off for the rest of the session and the pump
- * goes back to its original behaviour.
  */
 public final class FinitePumpRules {
-
-    // After this many errors the hooks stop for the session instead of failing on every pump operation
-    private static final int MAX_FAILURES = 5;
-    private static final AtomicInteger FAILURES = new AtomicInteger();
-    private static volatile boolean tripped;
 
     private FinitePumpRules() {
     }
@@ -43,13 +36,13 @@ public final class FinitePumpRules {
      */
     public static boolean mayConvertToSource(FluidState fluidState, Level level, BlockPos pos) {
         boolean originalAnswer = fluidState.canConvertToSource(level, pos);
-        if (!originalAnswer || tripped) {
+        if (!originalAnswer || PumpHookHealth.isTripped()) {
             return originalAnswer; // Already finite (lava, oil) or switched off: nothing to change
         }
         try {
             return !(FluidCompactCompatConfig.IE_PUMP_FINITE.get() && isFinite(fluidState));
         } catch (RuntimeException | LinkageError error) {
-            recordFailure(error);
+            PumpHookHealth.recordFailure(error);
             return originalAnswer;
         }
     }
@@ -59,7 +52,7 @@ public final class FinitePumpRules {
      * is finite and the cobblestone replacement should be skipped, otherwise null.
      */
     public static BlockPos finiteDrainTarget(Level level, List<BlockPos> workList) {
-        if (tripped || level == null || workList.isEmpty()) {
+        if (PumpHookHealth.isTripped() || level == null || workList.isEmpty()) {
             return null;
         }
         try {
@@ -70,35 +63,50 @@ public final class FinitePumpRules {
             BlockPos target = workList.get(workList.size() - 1);
             return isFinite(level.getFluidState(target)) ? target.immutable() : null;
         } catch (RuntimeException | LinkageError error) {
-            recordFailure(error);
+            PumpHookHealth.recordFailure(error);
             return null;
         }
     }
 
     /**
-     * @return true when the cobblestone the pump is about to place sits exactly where a finite fluid was taken
+     * Decides whether the cobblestone the pump is about to place must be skipped.
+     *
+     * <p>Two cases, either is enough. The block it sits on held a finite fluid a moment ago ({@code finiteDrainTarget}).
+     * Or the pump is working on a finite fluid at all ({@code pumpedFluid}, the fluid its area search found): the
+     * second case matters because the pump's work list is made some time before it is used, and with Flowing Fluids a
+     * thin layer can have flowed away in between. The pump still "takes" such an empty block and puts cobblestone
+     * there, so looking at the block alone is not enough.
      */
-    public static boolean shouldSkipCobble(BlockPos finiteDrainTarget, BlockPos cobblePos) {
-        boolean skip = finiteDrainTarget != null && finiteDrainTarget.equals(cobblePos);
-        if (skip && FluidCompactLog.isDetailLoggingActive()) {
-            FluidCompactLog.debugThrottled("immersiveengineering-no-cobble",
-                    "[immersiveengineering] Fluid Pump emptied a finite fluid at {}: no cobblestone placed", cobblePos.toShortString());
+    public static boolean shouldSkipCobble(BlockPos finiteDrainTarget, BlockPos cobblePos, Fluid pumpedFluid) {
+        if (PumpHookHealth.isTripped()) {
+            return false;
         }
-        return skip;
+        try {
+            boolean tookFiniteFluidHere = finiteDrainTarget != null && finiteDrainTarget.equals(cobblePos);
+            boolean pumpingFiniteFluid = !tookFiniteFluidHere && pumpsFiniteFluid(pumpedFluid);
+            if ((tookFiniteFluidHere || pumpingFiniteFluid) && FluidCompactLog.isDetailLoggingActive()) {
+                FluidCompactLog.debugThrottled("immersiveengineering-no-cobble",
+                        "[immersiveengineering] Fluid Pump: no cobblestone placed at {} ({})", cobblePos.toShortString(),
+                        tookFiniteFluidHere ? "finite fluid taken" : "block already empty, pump works on a finite fluid");
+            }
+            return tookFiniteFluidHere || pumpingFiniteFluid;
+        } catch (RuntimeException | LinkageError error) {
+            PumpHookHealth.recordFailure(error);
+            return false;
+        }
+    }
+
+    private static boolean pumpsFiniteFluid(Fluid pumpedFluid) {
+        return pumpedFluid != null
+                && pumpedFluid != Fluids.EMPTY
+                && FluidCompactCompatConfig.IE_PUMP_NO_COBBLE.get()
+                && FluidCompactApi.isReady()
+                && FluidCompactApi.service().isFinite(pumpedFluid);
     }
 
     private static boolean isFinite(FluidState fluidState) {
         return !fluidState.isEmpty()
                 && FluidCompactApi.isReady()
                 && FluidCompactApi.service().isFinite(fluidState.getType());
-    }
-
-    private static void recordFailure(Throwable error) {
-        FluidCompactLog.errorThrottled("immersiveengineering-pump", "Immersive Engineering pump hook failed", error);
-        if (FAILURES.incrementAndGet() >= MAX_FAILURES && !tripped) {
-            tripped = true;
-            FluidCompactLog.warn("[immersiveengineering] Fluid Pump hooks switched off for this session after repeated errors; "
-                    + "the pump is back to its original behaviour. Update FluidCompact.");
-        }
     }
 }

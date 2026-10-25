@@ -169,6 +169,7 @@ public final class YaclConfigScreenFactory {
                 .description(OptionDescription.of(Component.translatable("fluidcompact.group.immersiveengineering.desc")))
                 .option(toggle("iePumpFinite", FluidCompactCompatConfig.IE_PUMP_FINITE, installed))
                 .option(toggle("iePumpNoCobble", FluidCompactCompatConfig.IE_PUMP_NO_COBBLE, installed))
+                .option(toggle("iePumpDrainThin", FluidCompactCompatConfig.IE_PUMP_DRAIN_THIN, installed))
                 .build();
     }
 

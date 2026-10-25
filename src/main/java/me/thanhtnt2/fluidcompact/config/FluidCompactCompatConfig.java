@@ -44,6 +44,7 @@ public final class FluidCompactCompatConfig {
 
     public static final ModConfigSpec.BooleanValue IE_PUMP_FINITE;
     public static final ModConfigSpec.BooleanValue IE_PUMP_NO_COBBLE;
+    public static final ModConfigSpec.BooleanValue IE_PUMP_DRAIN_THIN;
 
     public static final ModConfigSpec.BooleanValue ALEXS_DRAIN_ENABLED;
     public static final ModConfigSpec.IntValue ALEXS_DRAIN_MAX_LEVELS_PER_CYCLE;
@@ -276,6 +277,11 @@ public final class FluidCompactCompatConfig {
                         "Flowing Fluids can refill or drain the area naturally. Fluids that are not finite still get cobblestone.",
                         "IE warns that without cobblestone, pumping large amounts of fluid can cause lag.")
                 .define("noCobbleForFiniteFluids", true);
+        IE_PUMP_DRAIN_THIN = BUILDER
+                .comment("Let the Immersive Engineering Fluid Pump also take the thin, non-source layers Flowing Fluids leaves behind,",
+                        "so a pond can be emptied completely. Each layer is taken as exactly the water it holds (125 mB per level)",
+                        "and paid by the world. Whole source blocks are untouched. Only for fluids FluidCompact treats as finite.")
+                .define("drainThinFluids", true);
         BUILDER.pop();
 
         BUILDER.push("alexscaves_drain");

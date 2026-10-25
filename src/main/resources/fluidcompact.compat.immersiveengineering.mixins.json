@@ -6,7 +6,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FluidPumpBlockEntityMixin",
-    "FluidPumpCobbleMixin"
+    "FluidPumpCobbleMixin",
+    "FluidPumpAreaSearchMixin",
+    "UtilsDrainFluidBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

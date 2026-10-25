@@ -2,6 +2,21 @@
 
 Versioning: `2.X.0` for a big update (new mod support), `2.0.X` for a small update or fix.
 
+## 2.1.1
+
+* **Immersive Engineering: the Fluid Pump now empties a pond completely.**
+  no more cobblestone from the Fluid Pump for finite fluids, including on blocks that had already
+  dried.** The pump builds its work list first and takes the blocks later. With Flowing Fluids a thin layer can flow away
+  in between; the pump still "takes" that empty block, spends energy and puts cobblestone there. 2.1.1 only looked at
+  the block just before taking it, so such blocks got through. The decision now also looks at the fluid the pump is
+  working on. The debug log says `block already empty, pump works on a finite fluid` when this case is caught.
+  `immersive_engineering.drainThinFluids`.
+* **New guard for the pump.** The Immersive Engineering hooks are now checked as one contract (`PumpContract`, a separate
+  class that only needs ASM): the pump's fields, the exact number and order of the calls the hooks rely on, and the two
+  helper methods in `Utils`. If an Immersive Engineering update changes any of it, **all** Immersive Engineering hooks
+  stay off, the log says why, and the pump works like in plain Immersive Engineering. A hook that keeps failing while
+  the game runs also switches itself off for the session. The pump guard also checks that the area search still stores the fluid it searches for.
+
 ## 2.1.0
 
 * **New: Immersive Engineering.** The Fluid Pump no longer makes endless water (or lava, if lava source conversion is on)
